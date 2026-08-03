@@ -247,11 +247,18 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
 .prevbox b{color:var(--tx);font-weight:700}
 .diff{font-weight:800;font-size:12px}
 .diff.up{color:var(--ok)}.diff.down{color:#ff7a7a}.diff.same{color:var(--tx3)}
-.histrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:13px}
+.histrow{display:flex;align-items:center;gap:9px;padding:8px 8px;border-top:1px solid var(--line);
+  font-size:13px;border-radius:9px}
 .histrow:first-of-type{border-top:0}
-.histrow .d{flex:none;width:46px;font-weight:700;color:var(--tx2);font-size:12px}
+.histrow .d{flex:none;width:42px;font-weight:700;color:var(--tx2);font-size:12px}
 .histrow .s{flex:1;color:var(--tx3);font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .histrow .m{flex:none;font-weight:800;font-variant-numeric:tabular-nums}
+.histrow .diff{flex:none;width:44px;text-align:right}
+.histrow.cur{background:var(--acc-soft);border-top-color:transparent}
+.histrow.cur .d{color:var(--acc)}
+.histrow.cur .s{color:var(--tx2)}
+.histblk{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line2)}
+.histblk .cap{font-size:11.5px;font-weight:800;color:var(--tx3);margin-bottom:4px;letter-spacing:.3px}
 
 .setblk{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:15px;margin-bottom:11px}
 .setblk h4{margin:0 0 4px;font-size:14.5px;font-weight:800}
@@ -376,8 +383,9 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
         <li>업로드된 영상 → 공유 → 링크 복사</li>
         <li>추가 화면이나 종목 화면의 영상칸에 붙여넣기</li>
       </ol>
-      <p style="margin:11px 0 0"><b>인라인 재생:</b> 유튜브 · 구글 드라이브(“링크가 있는 모든 사용자”로 공유) · mp4/mov 직링크<br>
-      <b>새 탭으로 열림:</b> 구글 포토, 아이클라우드 등 그 외 링크</p>
+      <p style="margin:11px 0 0"><b>앱 안에서 바로 재생:</b> 유튜브 · mp4/mov 직링크<br>
+      <b>새 탭으로 열림:</b> 구글 드라이브, 구글 포토, 아이클라우드 등</p>
+      <p style="margin:8px 0 0;color:var(--tx3)">구글 드라이브는 앱 안에서 재생하려 하면 쿠키 동의창만 뜨고 막혀서, 새 탭으로 열도록 해뒀습니다. 앱 안에서 바로 보려면 유튜브를 쓰세요.</p>
       <p style="margin:8px 0 0;color:var(--tx3)">아이클라우드 “링크 복사”는 30일 뒤 만료되니 오래 보관할 영상에는 쓰지 마세요.</p>
     </div>
     <div class="setblk">
@@ -410,7 +418,7 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
    스낵PT — 부위별 PT 팁 아카이브
    ========================================================= */
 const KEY = "snackpt.v1", THEME_KEY = "snackpt.theme";
-const APP_VERSION = "1.3";           // 배포할 때마다 올린다
+const APP_VERSION = "1.4";           // 배포할 때마다 올린다
 const APP_BUILT   = "2026-08-03";
 
 /* ---------- 운동 부위 ---------- */
@@ -432,7 +440,7 @@ const RULES = [
   ["etc",      /유산소|러닝|런닝|트레드밀|사이클|자전거|로잉머신|일립티컬|스텝퍼|스트레칭|폼롤러|워밍업|마사지/],
   ["core",     /레그\s*레이즈|행잉|플랭크|크런치|싯업|씻업|윗몸|러시안|복근|애브|abs|데드버그|버드독|힐터치|토터치|할로우|사이드밴드/i],
   ["shoulder", /업라이트/],
-  ["leg",      /스쿼트|squat|레그\s*프레스|레그프레스|레그\s*익스텐션|레그익스텐션|레그\s*컬|레그컬|런지|lunge|힙\s*쓰러스트|힙쓰러스트|힙\s*브릿지|브릿지|카프|종아리|calf|불가리안|스텝업|루마니안|rdl|스티프|굿모닝|어덕|어브덕|내전|외전|허벅지|하체|햄스트링|대퇴|둔근|엉덩이/i],
+  ["leg",      /스쿼트|squat|레그\s*프레스|레그\s*익스텐션|레그\s*컬|런지|lunge|힙\s*쓰러스트|힙\s*브릿지|브릿지|카프|종아리|calf|불가리안|스텝업|루마니안|rdl|스티프|굿모닝|이너\s*타이|아우터\s*타이|아웃\s*타이|인\s*타이|inner\s*thigh|outer\s*thigh|어덕|어브덕|앱덕|애덕|adduct|abduct|내전|외전|허벅지|하체|햄스트링|대퇴|둔근|엉덩이|킥\s*백\s*머신|레그\s*레이즈\s*머신/i],
   ["back",     /랫풀|풀다운|풀업|턱걸이|친업|로우|row|시티드|풀오버|백\s*익스텐션|백익스텐션|데드리프트|deadlift|광배|등운동|승모(?!.*어깨)/i],
   ["shoulder", /숄더|오버헤드|ohp|밀리터리|레터럴|래터럴|사이드\s*레이즈|프론트\s*레이즈|레이즈|raise|페이스\s*풀|페이스풀|리어\s*델트|리어델트|리버스\s*펙덱|슈러그|어깨|삼각근/i],
   /* 팔은 가슴보다 먼저 — "트라이셉스 프레스다운"이 가슴의 '프레스'에 걸리지 않도록 */
@@ -659,9 +667,8 @@ function embedHtml(url){
   /* 유튜브 (일반·쇼츠·라이브 모두) */
   const yt = url.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
   if(yt) return `<div class="embed"><iframe src="https://www.youtube.com/embed/${yt[1]}?playsinline=1&autoplay=1" allow="accelerometer;autoplay;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div>`;
-  /* 구글 드라이브 — 공유 링크를 미리보기 주소로 바꿔 재생 ("링크가 있는 모든 사용자" 필요) */
-  const gd = url.match(/drive\.google\.com\/(?:file\/d\/|open\?(?:.*&)?id=|uc\?(?:.*&)?id=)([A-Za-z0-9_-]{15,})/);
-  if(gd) return `<div class="embed"><iframe src="https://drive.google.com/file/d/${gd[1]}/preview" allow="autoplay" allowfullscreen></iframe></div>`;
+  /* 구글 드라이브는 인라인 재생을 하지 않는다.
+     iframe 안에서는 제3자 쿠키가 막혀 쿠키 동의창만 뜨고 재생이 안 되므로 새 탭으로 넘긴다. */
   /* 영상 파일 직링크 */
   if(/\.(mp4|mov|m4v|webm)(\?|$)/i.test(url)) return `<div class="embed"><video src="${esc(url)}" controls autoplay playsinline preload="metadata"></video></div>`;
   return "";
@@ -671,6 +678,40 @@ function playHere(btn, url){
   btn.closest(".videowrap").querySelector(".playslot").innerHTML = embedHtml(decodeURIComponent(url));
   btn.remove();
 }
+/* ---------- 중량 이력 ----------
+   한 종목이 등장한 모든 세트를 오래된 순으로 모아 직전 대비 증감을 붙인다.
+   세트 화면과 종목 화면이 같은 걸 본다. curSid를 주면 그 줄을 "지금"으로 표시. */
+function historyRows(exName){
+  const nn = normName(exName), rows = [];
+  DB.sessions.forEach(s=>s.exercises.forEach(e=>{
+    if(normName(e.name)===nn) rows.push({date:s.date, sid:s.id, ex:e, m:maxW(e)});
+  }));
+  return rows.sort((a,b)=> a.date.localeCompare(b.date) || 0);
+}
+function historyHtml(exName, curSid){
+  const rows = historyRows(exName);
+  if(!rows.length) return "";
+  let prev = null;
+  const items = rows.map(r=>{
+    let d = "";
+    if(prev!=null && r.m!=null){
+      const df = +(r.m - prev).toFixed(1);
+      const cls = df>0?"up":df<0?"down":"same";
+      d = `<span class="diff ${cls}">${df>0?"▲+"+df:df<0?"▼"+df:"—"}</span>`;
+    }
+    if(r.m!=null) prev = r.m;
+    const f = fmtDate(r.date);
+    const cur = r.sid===curSid;
+    return `<div class="histrow${cur?" cur":""}" onclick="closeSheet();openRoutine('${r.sid}')">
+      <span class="d">${f.m}/${f.d}</span>
+      <span class="s">${esc(r.ex.sets.map(setLabel).join(", ")||"세트 기록 없음")}</span>
+      <span class="m">${r.m!=null?r.m+"kg":"—"}</span>
+      ${d||'<span class="diff same" style="opacity:.35">·</span>'}
+    </div>`;
+  });
+  return items.reverse().join("");   // 화면에는 최근이 위
+}
+
 function sparkline(vals,w,h){
   vals = vals.filter(v=>typeof v==="number");
   if(vals.length<2) return "";
@@ -922,15 +963,7 @@ function openExercise(exk){
     </div>`;
   };
 
-  const hist = [...o.rows].reverse().map(r=>{
-    const f = fmtDate(r.date);
-    const m = maxW(r.ex);
-    return `<div class="histrow" onclick="closeSheet();openSession('${r.sid}')">
-      <span class="d">${f.m}/${f.d}</span>
-      <span class="s">${esc(r.ex.sets.map(setLabel).join(", ")||"세트 기록 없음")}</span>
-      <span class="m">${m?m+"kg":"—"}</span>
-    </div>`;
-  }).join("");
+  const hist = historyHtml(o.name, null);
 
   const vids = o.videos.map(v=>{
     const f = fmtDate(v.date);
@@ -978,7 +1011,7 @@ function openExercise(exk){
 
       ${vids?`<div class="tipblk"><h4>🎬 자세 영상</h4>${vids}</div>`:""}
 
-      ${hist?`<div class="tipblk"><h4>📊 중량 이력</h4>${hist}</div>`:""}
+      ${hist?`<div class="tipblk"><h4>📊 중량 이력 <span style="color:var(--tx3);font-weight:600">· ${o.rows.length}회 · 탭하면 그 세트로</span></h4>${hist}</div>`:""}
     </div>
   </div>`;
   document.body.style.overflow = "hidden";
@@ -1039,10 +1072,16 @@ function openRoutine(sid){
           : `<a class="vidbtn" style="background:color-mix(in srgb,${epc} 14%,transparent);color:${epc}" href="${esc(e.video)}" target="_blank" rel="noopener">🎬 자세 영상 열기</a>`}
         <div class="playslot"></div>
       </div>` : "";
+    /* 이 종목을 두 번 이상 했으면 중량 이력을 세트 화면에도 같이 보여준다 */
+    const hrows = historyRows(e.name);
+    const hist = hrows.length > 1
+      ? `<div class="histblk"><div class="cap">📊 중량 이력 · ${hrows.length}회</div>${historyHtml(e.name, s.id)}</div>`
+      : "";
     return `<div class="dex" style="--pc:${epc}">
       <h3><span class="n" style="background:${epc}">${i+1}</span>${esc(e.name)}</h3>
       ${cues}
       ${rows?`<div class="settable">${rows}</div>`:""}
+      ${hist}
       ${vid}
       <button class="btn sm full" style="margin-top:10px" onclick="closeSheet();openExercise('${normName(e.name)}')">🎓 이 종목 팁 전체 보기</button>
     </div>`;
