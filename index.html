@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1115">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="스낵PT">
+<title>스낵PT</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%AA%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#0f1115; --bg2:#151821; --card:#181b23; --card2:#1f2330;
+  --line:#272c38; --line2:#333a4a;
+  --tx:#e9ecf1; --tx2:#9aa2b1; --tx3:#69707e;
+  --acc:#ff7a45; --acc2:#ffb03a; --acc-soft:rgba(255,122,69,.14);
+  --ok:#3ecf8e; --warn:#ffc043; --star:#ffc043;
+  --r:16px; --r2:12px;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
+}
+html[data-theme="light"]{
+  --bg:#f4f5f8; --bg2:#eceef3; --card:#ffffff; --card2:#f6f7fa;
+  --line:#e3e6ec; --line2:#d3d8e2;
+  --tx:#1b1e25; --tx2:#5f6775; --tx3:#8b93a2;
+  --acc:#ef5f22; --acc2:#e5920a; --acc-soft:rgba(239,95,34,.10);
+  --ok:#12a06a; --warn:#b57900; --star:#e5920a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--tx);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR",system-ui,"Malgun Gothic",sans-serif;
+  font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  overscroll-behavior-y:none;
+}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:var(--acc);text-decoration:none}
+
+#app{max-width:560px;margin:0 auto;min-height:100vh;padding-bottom:calc(78px + var(--safe-b))}
+.topbar{
+  position:sticky;top:0;z-index:40;padding:calc(12px + var(--safe-t)) 16px 8px;
+  background:linear-gradient(180deg,var(--bg) 74%,transparent);
+  backdrop-filter:saturate(180%) blur(12px);-webkit-backdrop-filter:saturate(180%) blur(12px);
+}
+.brand{display:flex;align-items:center;gap:9px}
+.brand h1{margin:0;font-size:21px;font-weight:800;letter-spacing:-.5px;
+  background:linear-gradient(92deg,var(--acc),var(--acc2));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.brand .em{font-size:20px}
+.brand .tagline{font-size:11px;color:var(--tx3);font-weight:600;margin-left:1px}
+.brand .sub{margin-left:auto;display:flex;gap:6px}
+.iconbtn{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:var(--card);border:1px solid var(--line);color:var(--tx2);font-size:15px}
+.iconbtn:active{transform:scale(.94)}
+.view{padding:4px 16px 24px;animation:fade .22s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.hidden{display:none !important}
+
+/* part chips */
+.chiprow{display:flex;gap:7px;overflow-x:auto;padding:6px 16px 10px;margin:0 -16px;scrollbar-width:none}
+.chiprow::-webkit-scrollbar{display:none}
+.chip{
+  flex:none;display:flex;align-items:center;gap:6px;padding:8px 13px;border-radius:999px;
+  background:var(--card);border:1px solid var(--line);font-size:13.5px;font-weight:700;color:var(--tx2);
+  transition:.15s;
+}
+.chip .cnt{font-size:11px;color:var(--tx3);font-weight:600}
+.chip.on{background:var(--pc,var(--acc));border-color:transparent;color:#fff}
+.chip.on .cnt{color:rgba(255,255,255,.75)}
+.chip:active{transform:scale(.95)}
+.pdot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--pc,var(--acc))}
+.chip.on .pdot{background:rgba(255,255,255,.9)}
+
+/* segmented */
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:3px;margin:2px 0 14px}
+.seg button{flex:1;padding:7px 0;border-radius:8px;font-size:13px;font-weight:700;color:var(--tx3)}
+.seg button.on{background:var(--card2);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.18)}
+
+.search{display:flex;align-items:center;gap:8px;background:var(--card);
+  border:1px solid var(--line);border-radius:12px;padding:9px 12px;margin-bottom:12px}
+.search input{flex:1;border:0;background:none;outline:none;font-size:14px;min-width:0}
+.search input::placeholder{color:var(--tx3)}
+
+.stats{display:flex;gap:8px;margin:2px 0 14px}
+.stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:var(--r2);padding:9px 10px;min-width:0}
+.stat b{display:block;font-size:19px;font-weight:800;letter-spacing:-.4px;line-height:1.2}
+.stat span{font-size:11px;color:var(--tx3);white-space:nowrap}
+
+.seclabel{font-size:12px;font-weight:700;color:var(--tx3);letter-spacing:.4px;margin:18px 2px 8px}
+.seclabel:first-child{margin-top:2px}
+
+/* exercise tip card */
+.excard{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:14px;margin-bottom:10px;position:relative;overflow:hidden;transition:transform .12s
+}
+.excard:active{transform:scale(.985)}
+.excard .bar{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--pc,var(--acc))}
+.exhead{display:flex;align-items:center;gap:8px;margin-bottom:9px;padding-left:5px}
+.ptag{
+  flex:none;font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:7px;
+  background:color-mix(in srgb,var(--pc,var(--acc)) 16%,transparent);color:var(--pc,var(--acc));
+}
+.exhead .nm{font-size:15.5px;font-weight:800;letter-spacing:-.3px;min-width:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exhead .meta{margin-left:auto;flex:none;font-size:11px;color:var(--tx3);white-space:nowrap}
+.tiplist{padding-left:5px}
+.tipitem{display:flex;gap:8px;align-items:flex-start;padding:4px 0;font-size:13.5px;line-height:1.6;color:var(--tx2)}
+.tipitem .bul{flex:none;color:var(--pc,var(--acc));font-size:11px;line-height:1.9;opacity:.75}
+.tipitem.key{color:var(--tx);font-weight:600}
+.tipitem .txt{min-width:0}
+.rep{
+  flex:none;font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:4px;
+  background:rgba(255,192,67,.16);color:var(--star);white-space:nowrap;vertical-align:2px;
+}
+.moretip{padding-left:5px;font-size:12px;color:var(--tx3);font-weight:600;margin-top:5px}
+
+/* session card */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:14px;margin-bottom:10px;position:relative;overflow:hidden;transition:transform .12s}
+.card:active{transform:scale(.985)}
+.card .accentbar{position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--acc),var(--acc2))}
+.card .chead{display:flex;align-items:baseline;gap:8px;margin-bottom:9px;padding-left:5px}
+.card .cdate{font-size:16px;font-weight:800;letter-spacing:-.3px}
+.card .cdow{font-size:12px;color:var(--tx3);font-weight:600}
+.card .cnum{margin-left:auto;font-size:11px;color:var(--tx3);white-space:nowrap}
+.card .nth{font-size:11px;font-weight:800;padding:2px 7px;border-radius:6px;
+  background:color-mix(in srgb,var(--pc,var(--acc)) 16%,transparent);color:var(--pc,var(--acc))}
+.exline{display:flex;gap:8px;align-items:center;padding:4px 0 4px 5px;min-width:0}
+.exline .ix{flex:none;width:18px;height:18px;border-radius:6px;background:var(--acc-soft);
+  color:var(--acc);font-size:10px;font-weight:800;display:grid;place-items:center}
+.exline .nm{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exline .vd{flex:none;font-size:10px;color:var(--tx3)}
+.exline .sm{margin-left:auto;flex:none;font-size:12px;color:var(--tx2);font-variant-numeric:tabular-nums}
+.memoline{margin:8px 0 0 5px;font-size:12.5px;color:var(--tx2);border-left:2px solid var(--line2);padding-left:8px}
+
+.empty{text-align:center;padding:52px 20px;color:var(--tx3)}
+.empty .bigem{font-size:44px;display:block;margin-bottom:12px;opacity:.85}
+.empty p{margin:6px 0;font-size:13.5px;line-height:1.7}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:12px 16px;border-radius:12px;font-size:14.5px;font-weight:700;
+  background:var(--card2);border:1px solid var(--line);color:var(--tx)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:linear-gradient(96deg,var(--acc),var(--acc2));color:#fff;border-color:transparent}
+.btn.ghost{background:transparent}
+.btn.danger{color:#ff6b6b}
+.btn.full{display:flex;width:100%}
+.btn.sm{padding:8px 12px;font-size:13px;border-radius:10px}
+.btnrow{display:flex;gap:8px}
+.btnrow>*{flex:1}
+
+label.fl{display:block;font-size:12px;font-weight:700;color:var(--tx3);margin:16px 0 6px;letter-spacing:.2px}
+.inp,textarea.inp{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:12px;font-size:15px;outline:none;transition:border-color .15s}
+.inp:focus,textarea.inp:focus{border-color:var(--acc)}
+textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
+.hint{font-size:11.5px;color:var(--tx3);margin-top:6px;line-height:1.6}
+
+/* parse preview */
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px;margin-bottom:9px}
+.phead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.phead input{flex:1;background:transparent;border:0;border-bottom:1px dashed var(--line2);
+  font-size:15px;font-weight:700;padding:2px 0;outline:none;min-width:0}
+.phead input:focus{border-bottom-color:var(--acc)}
+.pill{font-size:10.5px;font-weight:700;padding:3px 7px;border-radius:999px;
+  background:var(--acc-soft);color:var(--acc);white-space:nowrap}
+.pill.warn{background:rgba(255,192,67,.15);color:var(--warn)}
+.pill.mut{background:var(--card2);color:var(--tx3)}
+.partpick{display:flex;gap:5px;overflow-x:auto;padding:2px 0 4px;margin-bottom:6px;scrollbar-width:none}
+.partpick::-webkit-scrollbar{display:none}
+.pp{flex:none;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:999px;
+  background:var(--card2);border:1px solid var(--line);color:var(--tx3)}
+.pp.on{background:var(--pc);border-color:transparent;color:#fff}
+.pcue{font-size:12.5px;color:var(--tx2);padding-left:10px;border-left:2px solid var(--line2);margin:4px 0}
+.psets{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.setchip{font-size:12px;font-variant-numeric:tabular-nums;padding:4px 8px;border-radius:8px;
+  background:var(--card2);border:1px solid var(--line);color:var(--tx);white-space:nowrap}
+.setchip i{font-style:normal;color:var(--tx3);font-size:10px;margin-right:3px}
+.vidinp{display:flex;align-items:center;gap:6px;margin-top:9px;background:var(--card2);
+  border:1px solid var(--line);border-radius:10px;padding:7px 10px}
+.vidinp span{font-size:12px;flex:none}
+.vidinp input{flex:1;border:0;background:none;outline:none;font-size:12.5px;min-width:0}
+.delx{flex:none;color:var(--tx3);font-size:16px;padding:2px 4px;line-height:1}
+
+/* sheet */
+.sheet{position:fixed;inset:0;z-index:80;background:var(--bg);overflow-y:auto;
+  -webkit-overflow-scrolling:touch;animation:slideup .26s cubic-bezier(.2,.8,.2,1)}
+@keyframes slideup{from{transform:translateY(100%)}to{transform:none}}
+.sheetbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;
+  padding:calc(10px + var(--safe-t)) 16px 10px;background:var(--bg);border-bottom:1px solid var(--line)}
+.sheetbar .ttl{font-size:16px;font-weight:800;letter-spacing:-.3px;min-width:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheetbody{max-width:560px;margin:0 auto;padding:16px 16px calc(40px + var(--safe-b))}
+
+.hero{margin-bottom:16px}
+.hero h2{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.7px;line-height:1.25}
+.hero .row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.hero .mini{font-size:12px;color:var(--tx3)}
+
+.tipblk{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:15px;margin-bottom:11px}
+.tipblk h4{margin:0 0 10px;font-size:13px;font-weight:800;color:var(--tx3);letter-spacing:.3px;
+  display:flex;align-items:center;gap:6px}
+.tiprow{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line)}
+.tiprow:first-of-type{border-top:0;padding-top:0}
+.tiprow .star{flex:none;font-size:15px;color:var(--tx3);opacity:.5;padding:0 2px;line-height:1.4}
+.tiprow .star.on{color:var(--star);opacity:1}
+.tiprow .body{flex:1;min-width:0}
+.tiprow .t{font-size:14.5px;line-height:1.62}
+.tiprow.key .t{font-weight:700}
+.tiprow .when{font-size:10.5px;color:var(--tx3);margin-top:3px;display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.tiprow .when b{font-weight:700;color:var(--tx2)}
+.addtip{display:flex;gap:7px;margin-top:12px}
+.addtip input{flex:1;background:var(--card2);border:1px solid var(--line);border-radius:10px;
+  padding:10px 12px;font-size:13.5px;outline:none;min-width:0}
+.addtip input:focus{border-color:var(--acc)}
+.addtip button{flex:none;padding:0 14px;border-radius:10px;background:var(--acc-soft);color:var(--acc);font-weight:800;font-size:13px}
+
+.dex{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:15px;margin-bottom:11px}
+.dex h3{margin:0 0 3px;font-size:16.5px;font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:7px}
+.dex h3 .n{flex:none;width:21px;height:21px;border-radius:7px;background:linear-gradient(140deg,var(--acc),var(--acc2));
+  color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center}
+.cuelist{margin:10px 0 0;padding:0;list-style:none}
+.cuelist li{font-size:13.5px;color:var(--tx2);line-height:1.65;padding:3px 0 3px 12px;position:relative}
+.cuelist li:before{content:"";position:absolute;left:0;top:11px;width:5px;height:5px;border-radius:50%;
+  background:var(--pc,var(--acc));opacity:.6}
+.settable{margin-top:11px;display:flex;flex-direction:column;gap:4px}
+.setrow{display:flex;align-items:center;gap:10px;background:var(--card2);border-radius:9px;
+  padding:7px 10px;font-variant-numeric:tabular-nums}
+.setrow .no{font-size:10.5px;font-weight:800;color:var(--tx3);width:26px;flex:none}
+.setrow .wt{font-size:14.5px;font-weight:700;min-width:62px}
+.setrow .rp{font-size:13px;color:var(--tx2)}
+.setrow .bar2{margin-left:auto;height:5px;border-radius:3px;
+  background:linear-gradient(90deg,var(--acc),var(--acc2));opacity:.5;min-width:6px}
+.volume{margin-top:9px;font-size:11.5px;color:var(--tx3);display:flex;gap:10px;flex-wrap:wrap}
+.videowrap{margin-top:12px}
+.vidbtn{display:flex;align-items:center;gap:8px;width:100%;padding:10px 12px;border-radius:11px;
+  background:var(--acc-soft);color:var(--acc);font-size:13.5px;font-weight:700;border:1px solid transparent}
+.embed{margin-top:9px;position:relative;padding-top:56.25%;border-radius:12px;overflow:hidden;background:#000}
+.embed iframe,.embed video{position:absolute;inset:0;width:100%;height:100%;border:0}
+.prevbox{margin-top:11px;padding:10px 12px;border-radius:11px;background:var(--card2);
+  border:1px dashed var(--line2);font-size:12.5px;color:var(--tx2)}
+.prevbox b{color:var(--tx);font-weight:700}
+.diff{font-weight:800;font-size:12px}
+.diff.up{color:var(--ok)}.diff.down{color:#ff7a7a}.diff.same{color:var(--tx3)}
+.histrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:13px}
+.histrow:first-of-type{border-top:0}
+.histrow .d{flex:none;width:46px;font-weight:700;color:var(--tx2);font-size:12px}
+.histrow .s{flex:1;color:var(--tx3);font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.histrow .m{flex:none;font-weight:800;font-variant-numeric:tabular-nums}
+
+.setblk{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:15px;margin-bottom:11px}
+.setblk h4{margin:0 0 4px;font-size:14.5px;font-weight:800}
+.setblk p{margin:0 0 11px;font-size:12.5px;color:var(--tx2);line-height:1.65}
+.setblk ol,.setblk ul{margin:0;padding-left:18px;font-size:12.5px;color:var(--tx2);line-height:1.85}
+
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;max-width:560px;margin:0 auto;
+  padding:7px 8px calc(7px + var(--safe-b));
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:saturate(180%) blur(16px);-webkit-backdrop-filter:saturate(180%) blur(16px);
+  border-top:1px solid var(--line)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 0;
+  border-radius:11px;color:var(--tx3);font-size:10.5px;font-weight:700}
+.tab .ic{font-size:19px;line-height:1.15;filter:grayscale(1);opacity:.62;transition:.15s}
+.tab.on{color:var(--acc)}
+.tab.on .ic{filter:none;opacity:1;transform:translateY(-1px)}
+
+#toast{position:fixed;left:50%;bottom:calc(92px + var(--safe-b));transform:translateX(-50%) translateY(10px);
+  background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:13px;font-weight:700;
+  z-index:200;opacity:0;pointer-events:none;transition:.24s;white-space:nowrap;max-width:90vw;
+  overflow:hidden;text-overflow:ellipsis}
+#toast.on{opacity:1;transform:translateX(-50%)}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <span class="em">🍪</span>
+      <h1>스낵PT</h1>
+      <span class="tagline">내 손안의 PT 선생님</span>
+      <div class="sub"><button class="iconbtn" id="themeBtn">◐</button></div>
+    </div>
+  </div>
+
+  <!-- ============ PT 팁 (홈) ============ -->
+  <div class="view" id="v-tips">
+    <div class="chiprow" id="partChips"></div>
+    <div class="seg hidden" id="modeSeg">
+      <button data-m="ex" class="on">종목별 팁</button>
+      <button data-m="day">날짜별로 보기</button>
+    </div>
+    <div class="search">
+      <span>🔍</span>
+      <input id="tq" placeholder="운동 이름·팁 내용 검색" autocomplete="off">
+    </div>
+    <div id="tipsBody"></div>
+  </div>
+
+  <!-- ============ 기록 ============ -->
+  <div class="view hidden" id="v-log">
+    <div class="stats" id="stats"></div>
+    <div class="search">
+      <span>🔍</span>
+      <input id="q" placeholder="운동 이름·메모로 찾기" autocomplete="off">
+    </div>
+    <div id="logList"></div>
+  </div>
+
+  <!-- ============ 추가 ============ -->
+  <div class="view hidden" id="v-add">
+    <label class="fl">날짜</label>
+    <input type="date" class="inp" id="aDate">
+
+    <label class="fl">카톡 내용 붙여넣기</label>
+    <textarea class="inp" id="aRaw" rows="9" placeholder="트레이너가 보낸 메시지를 그대로 붙여넣으세요.
+
+오늘의 운동
+
+1.루마니안 데드리프트
+-호흡 마시고 꽉 잡고…
+10kg x 15, 20kg x 10, 30kg x 15 3set"></textarea>
+    <div class="hint">번호(1. 2. 3.)로 운동을, <b>-</b>로 시작하는 줄은 <b>팁</b>으로, 숫자·kg·x가 섞인 줄은 세트로 자동 인식합니다. 운동 부위도 이름을 보고 자동 분류해요.</div>
+
+    <div class="btnrow" style="margin-top:12px">
+      <button class="btn primary" id="parseBtn">✨ 자동 정리</button>
+      <button class="btn ghost" id="clearRaw">지우기</button>
+    </div>
+
+    <div id="parsed"></div>
+    <div id="saveWrap" class="hidden" style="margin-top:14px">
+      <label class="fl">메모 (선택)</label>
+      <input class="inp" id="aMemo" placeholder="컨디션, 통증, 다음에 할 것 등">
+      <button class="btn primary full" id="saveBtn" style="margin-top:14px">🍪 스낵PT에 저장</button>
+      <button class="btn ghost full" id="addExBtn" style="margin-top:8px">＋ 운동 직접 추가</button>
+    </div>
+  </div>
+
+  <!-- ============ 설정 ============ -->
+  <div class="view hidden" id="v-set">
+    <div class="setblk">
+      <h4>백업 내보내기</h4>
+      <p>모든 팁과 기록을 JSON 파일 하나로 저장합니다. 폰↔PC 옮기거나 브라우저 데이터가 날아갈 때 대비용이에요.</p>
+      <button class="btn full" id="expBtn">⬇︎ 백업 파일 내려받기</button>
+    </div>
+    <div class="setblk">
+      <h4>백업 불러오기</h4>
+      <p>내려받은 JSON을 다시 넣습니다. 같은 기록은 건너뛰고 없는 것만 합쳐집니다.</p>
+      <button class="btn full" id="impBtn">⬆︎ 백업 파일 선택</button>
+      <input type="file" id="impFile" accept="application/json,.json" class="hidden">
+    </div>
+    <div class="setblk">
+      <h4>폰 홈 화면에 두기</h4>
+      <ol>
+        <li>이 파일을 iCloud·구글 드라이브에 올리거나 카톡 나에게 보내기로 폰에 옮깁니다</li>
+        <li>사파리/크롬에서 열고 <b>공유 → 홈 화면에 추가</b></li>
+        <li>앱처럼 아이콘으로 실행됩니다</li>
+      </ol>
+      <p style="margin:11px 0 0">기록은 <b>연 브라우저 안에</b> 저장됩니다. 폰과 PC는 서로 다른 저장소라, 옮길 땐 위의 백업 파일을 쓰세요.</p>
+    </div>
+    <div class="setblk">
+      <h4>부위 분류를 고치려면</h4>
+      <p>운동 이름으로 자동 분류하지만 틀릴 수 있어요. <b>종목 카드를 열고 상단 부위칩을 탭</b>하면 바뀌고, 그 운동의 모든 날짜에 한번에 적용됩니다.</p>
+    </div>
+    <div class="setblk">
+      <h4>영상 붙이는 법</h4>
+      <p style="color:#ff8a6a;font-weight:600">카톡 영상은 시간이 지나면 다운로드가 막힙니다. 받는 날 바로 폰에 저장해 두세요.</p>
+      <ol>
+        <li>카톡에서 영상 재생 → 저장 (또는 길게 눌러 저장)</li>
+        <li>유튜브 앱 → ＋ → 동영상 업로드 → 공개 설정을 <b>미등록</b>으로</li>
+        <li>업로드된 영상 → 공유 → 링크 복사</li>
+        <li>추가 화면이나 종목 화면의 영상칸에 붙여넣기</li>
+      </ol>
+      <p style="margin:11px 0 0"><b>인라인 재생:</b> 유튜브 · 구글 드라이브(“링크가 있는 모든 사용자”로 공유) · mp4/mov 직링크<br>
+      <b>새 탭으로 열림:</b> 구글 포토, 아이클라우드 등 그 외 링크</p>
+      <p style="margin:8px 0 0;color:var(--tx3)">아이클라우드 “링크 복사”는 30일 뒤 만료되니 오래 보관할 영상에는 쓰지 마세요.</p>
+    </div>
+    <div class="setblk">
+      <h4>데이터</h4>
+      <p id="dataInfo"></p>
+      <button class="btn danger full" id="wipeBtn">전체 기록 삭제</button>
+    </div>
+  </div>
+</div>
+
+<div class="tabbar">
+  <button class="tab on" data-v="tips"><span class="ic">🎓</span>PT 팁</button>
+  <button class="tab" data-v="log"><span class="ic">📒</span>기록</button>
+  <button class="tab" data-v="add"><span class="ic">➕</span>추가</button>
+  <button class="tab" data-v="set"><span class="ic">⚙️</span>설정</button>
+</div>
+
+<div id="sheetHost"></div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* =========================================================
+   스낵PT — 부위별 PT 팁 아카이브
+   ========================================================= */
+const KEY = "snackpt.v1", THEME_KEY = "snackpt.theme";
+
+/* ---------- 운동 부위 ---------- */
+const PARTS = [
+  {k:"leg",      n:"다리", c:"#ff7a45"},
+  {k:"chest",    n:"가슴", c:"#ff5b8a"},
+  {k:"back",     n:"등",   c:"#4d9dff"},
+  {k:"shoulder", n:"어깨", c:"#ffc043"},
+  {k:"arm",      n:"팔",   c:"#a78bfa"},
+  {k:"core",     n:"코어", c:"#3ecf8e"},
+  {k:"etc",      n:"기타", c:"#8b919c"},
+];
+const PMAP = Object.fromEntries(PARTS.map(p=>[p.k,p]));
+const partName  = k => (PMAP[k]||PMAP.etc).n;
+const partColor = k => (PMAP[k]||PMAP.etc).c;
+
+/* 이름으로 부위 자동 분류 — 위에서부터 먼저 걸리는 규칙 적용 */
+const RULES = [
+  ["etc",      /유산소|러닝|런닝|트레드밀|사이클|자전거|로잉머신|일립티컬|스텝퍼|스트레칭|폼롤러|워밍업|마사지/],
+  ["core",     /레그\s*레이즈|행잉|플랭크|크런치|싯업|씻업|윗몸|러시안|복근|애브|abs|데드버그|버드독|힐터치|토터치|할로우|사이드밴드/i],
+  ["shoulder", /업라이트/],
+  ["leg",      /스쿼트|squat|레그\s*프레스|레그프레스|레그\s*익스텐션|레그익스텐션|레그\s*컬|레그컬|런지|lunge|힙\s*쓰러스트|힙쓰러스트|힙\s*브릿지|브릿지|카프|종아리|calf|불가리안|스텝업|루마니안|rdl|스티프|굿모닝|어덕|어브덕|내전|외전|허벅지|하체|햄스트링|대퇴|둔근|엉덩이/i],
+  ["back",     /랫풀|풀다운|풀업|턱걸이|친업|로우|row|시티드|풀오버|백\s*익스텐션|백익스텐션|데드리프트|deadlift|광배|등운동|승모(?!.*어깨)/i],
+  ["shoulder", /숄더|오버헤드|ohp|밀리터리|레터럴|래터럴|사이드\s*레이즈|프론트\s*레이즈|레이즈|raise|페이스\s*풀|페이스풀|리어\s*델트|리어델트|리버스\s*펙덱|슈러그|어깨|삼각근/i],
+  /* 팔은 가슴보다 먼저 — "트라이셉스 프레스다운"이 가슴의 '프레스'에 걸리지 않도록 */
+  ["arm",      /컬|curl|이두|삼두|바이셉|트라이셉|킥백|프레스\s*다운|푸시\s*다운|푸쉬\s*다운|해머|프리처|팔운동|전완|이두근|삼두근/i],
+  ["chest",    /벤치|체스트|chest|플라이|fly|딥스|dips|푸시업|푸쉬업|팔굽혀|펙덱|펙\s*덱|인클라인|디클라인|가슴|대흉근|프레스|press/i],
+];
+function classify(name){
+  const s = String(name||"");
+  for(const [k,re] of RULES) if(re.test(s)) return k;
+  return "etc";
+}
+
+/* =========================================================
+   저장소
+   ========================================================= */
+let DB = migrate(load());
+
+function load(){
+  try{
+    const r = JSON.parse(localStorage.getItem(KEY) || "null");
+    if(r && Array.isArray(r.sessions)) return r;
+  }catch(e){}
+  return {version:2, sessions:[]};
+}
+function migrate(db){
+  db.version = 2;
+  db.parts = db.parts || {};   // 정규화된 운동명 → 사용자가 지정한 부위
+  db.stars = db.stars || {};   // 팁 키 → true
+  db.notes = db.notes || [];   // 직접 추가한 팁
+  db.sessions.forEach(s=>{
+    s.exercises = s.exercises || [];
+    s.exercises.forEach(e=>{
+      e.cues = Array.isArray(e.cues) ? e.cues : [];
+      e.sets = Array.isArray(e.sets) ? e.sets : [];
+      if(!e.part) e.part = classify(e.name);
+    });
+  });
+  return db;
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(DB)); }
+  catch(e){ toast("저장 실패 — 저장 공간이 부족할 수 있어요"); }
+}
+function uid(p){ return (p||"s")+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+/* =========================================================
+   유틸
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const DOW = ["일","월","화","수","목","금","토"];
+const normName = n => String(n).replace(/\s+/g,"").toLowerCase();
+const normTip  = t => String(t).replace(/[\s,.!?~·・\-—–"'()]/g,"").toLowerCase();
+
+function todayStr(d){
+  const t = d || new Date();
+  return t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0");
+}
+function fmtDate(s){
+  const [y,m,d] = s.split("-").map(Number);
+  return {m, d, y, dow: DOW[new Date(y,m-1,d).getDay()]};
+}
+let toastT;
+function toast(msg){
+  const el = $("#toast"); el.textContent = msg; el.classList.add("on");
+  clearTimeout(toastT); toastT = setTimeout(()=>el.classList.remove("on"), 2100);
+}
+
+/* =========================================================
+   파서 — 카톡 메시지 → 구조화
+   ========================================================= */
+const RE_EX      = /^\s*(\d{1,2})\s*[.)\]]\s*(.+?)\s*$/;
+const RE_CUE     = /^\s*[-–—•·▪]\s*(.+?)\s*$/;
+const RE_TAILSET = /[,\s]*(\d{1,2})\s*(?:set|sets|세트|셋)\s*$/i;
+const RE_WXR     = /^(\d+(?:\.\d+)?)\s*(kg|㎏|lb|lbs|파운드)?\s*[x×*X]\s*(\d+(?:\.\d+)?)\s*(?:회|reps?|rep)?$/i;
+const RE_RONLY   = /^(\d+(?:\.\d+)?)\s*(?:회|reps?|rep)?$/i;
+const RE_WONLY   = /^(\d+(?:\.\d+)?)\s*(kg|㎏|lb|lbs)$/i;
+const RE_TIME    = /^(\d+(?:\.\d+)?)\s*(초|분|sec|min)$/i;
+const RE_NOISE   = /^[\s\d년월일.\/()]*(오늘의?\s*운동|운동\s*(일지|정리|기록)|today'?s?\s*workout)\s*[:：!~.]*$/i;
+const RE_DATEONLY= /^[\s()]*(20\d{2}[.\-\/])?\d{1,2}\s*[월.\-\/]\s*\d{1,2}\s*일?\s*[(（]?[월화수목금토일]?[)）]?\s*[:：]?$/;
+const RE_GREET   = /(고생|수고|화이팅|파이팅|잘하셨|감사합니다|다음\s*시간|안녕하세|좋은\s*하루)/;
+const RE_URL     = /(https?:\/\/[^\s]+)/i;
+
+function looksLikeSets(line){
+  if(!/\d/.test(line)) return false;
+  if(RE_CUE.test(line)) return false;
+  if(RE_TAILSET.test(line)) return true;
+  if(/\d\s*[x×*X]\s*\d/.test(line)) return true;
+  if(/\d\s*(kg|㎏|lb)\b/i.test(line) && /[,]/.test(line)) return true;
+  return false;
+}
+function parseSets(line){
+  let s = line.trim(), declared = null;
+  const tail = s.match(RE_TAILSET);
+  if(tail){ declared = +tail[1]; s = s.replace(RE_TAILSET,"").trim(); }
+  s = s.replace(/[,·]\s*$/,"").trim();
+
+  const sets = []; let lastW = null, lastU = "kg";
+  s.split(/\s*[,/]\s*/).filter(Boolean).forEach(tok=>{
+    let m;
+    if((m = tok.match(RE_WXR))){
+      lastW = +m[1]; lastU = m[2] ? (/lb/i.test(m[2])?"lb":"kg") : lastU;
+      sets.push({w:lastW, u:lastU, r:+m[3]});
+    } else if((m = tok.match(RE_TIME))){
+      sets.push({w:null, u:"", r:null, t:m[1]+m[2]});
+    } else if((m = tok.match(RE_WONLY))){
+      lastW = +m[1]; lastU = /lb/i.test(m[2])?"lb":"kg";
+      sets.push({w:lastW, u:lastU, r:null});
+    } else if((m = tok.match(RE_RONLY))){
+      sets.push({w:lastW, u:lastU, r:+m[1]});
+    } else if(tok){ sets.push({raw:tok}); }
+  });
+  return {sets, declared, raw:line.trim()};
+}
+function parseDateFrom(text){
+  let m;
+  if((m = text.match(/(20\d{2})[.\-\/](\d{1,2})[.\-\/](\d{1,2})/)))
+    return `${m[1]}-${String(+m[2]).padStart(2,"0")}-${String(+m[3]).padStart(2,"0")}`;
+  if((m = text.match(/(\d{1,2})\s*월\s*(\d{1,2})\s*일/))){
+    const y = new Date().getFullYear();
+    return `${y}-${String(+m[1]).padStart(2,"0")}-${String(+m[2]).padStart(2,"0")}`;
+  }
+  return null;
+}
+function parseMessage(text){
+  const lines = text.replace(/\r/g,"").split("\n");
+  const exercises = [], memo = [];
+  let cur = null;
+  const push = ()=>{ if(cur){ cur.part = classify(cur.name); exercises.push(cur); } };
+
+  for(const raw of lines){
+    const line = raw.trim();
+    if(!line) continue;
+    if(RE_NOISE.test(line)) continue;
+    if(!cur && RE_DATEONLY.test(line)) continue;
+
+    if(/^https?:\/\/\S+$/i.test(line)){
+      if(cur && !cur.video) cur.video = line; else memo.push(line);
+      continue;
+    }
+    const mEx = line.match(RE_EX);
+    if(mEx && !looksLikeSets(line)){
+      push();
+      cur = {name:mEx[2].replace(/\s*[:：]\s*$/,""), part:"etc", cues:[], sets:[], declared:null, rawSets:"", video:""};
+      continue;
+    }
+    const mCue = line.match(RE_CUE);
+    if(mCue){ if(cur) cur.cues.push(mCue[1]); else memo.push(mCue[1]); continue; }
+
+    if(looksLikeSets(line) && cur){
+      const p = parseSets(line);
+      cur.sets = cur.sets.concat(p.sets);
+      cur.declared = p.declared ?? cur.declared;
+      cur.rawSets = cur.rawSets ? cur.rawSets+" / "+p.raw : p.raw;
+      continue;
+    }
+    if(RE_GREET.test(line)) continue;
+    const u = line.match(RE_URL);
+    if(u && cur && !cur.video){ cur.video = u[1]; continue; }
+    if(cur && cur.sets.length === 0) cur.cues.push(line);
+    else memo.push(line);
+  }
+  push();
+  return {exercises, memo: memo.join(" / ")};
+}
+
+/* =========================================================
+   표시 헬퍼
+   ========================================================= */
+function setLabel(s){
+  if(s.raw) return esc(s.raw);
+  if(s.t) return esc(s.t);
+  const w = s.w!=null ? s.w+(s.u||"") : "";
+  const r = s.r!=null ? s.r+"회" : "";
+  return [w,r].filter(Boolean).join(" × ") || "—";
+}
+function summarize(ex){
+  const n = ex.sets.length || ex.declared || 0;
+  const ws = ex.sets.map(s=>s.w).filter(v=>typeof v==="number");
+  if(!ws.length) return n ? n+"세트" : "";
+  const mx = Math.max(...ws);
+  const u = (ex.sets.find(s=>s.w===mx)||{}).u || "kg";
+  return n+"세트 · 최고 "+mx+u;
+}
+const volumeOf = ex => ex.sets.reduce((a,s)=>a+((s.w||0)*(s.r||0)),0);
+function maxW(ex){
+  const ws = ex.sets.map(s=>s.w).filter(v=>typeof v==="number");
+  return ws.length ? Math.max(...ws) : null;
+}
+/* 실제 적용되는 부위: 사용자 지정 > 자동 분류 */
+function partOf(ex){ return DB.parts[normName(ex.name)] || ex.part || classify(ex.name); }
+function partOfName(name){ return DB.parts[normName(name)] || classify(name); }
+
+function embedHtml(url){
+  /* 유튜브 (일반·쇼츠·라이브 모두) */
+  const yt = url.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+  if(yt) return `<div class="embed"><iframe src="https://www.youtube.com/embed/${yt[1]}?playsinline=1&autoplay=1" allow="accelerometer;autoplay;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div>`;
+  /* 구글 드라이브 — 공유 링크를 미리보기 주소로 바꿔 재생 ("링크가 있는 모든 사용자" 필요) */
+  const gd = url.match(/drive\.google\.com\/(?:file\/d\/|open\?(?:.*&)?id=|uc\?(?:.*&)?id=)([A-Za-z0-9_-]{15,})/);
+  if(gd) return `<div class="embed"><iframe src="https://drive.google.com/file/d/${gd[1]}/preview" allow="autoplay" allowfullscreen></iframe></div>`;
+  /* 영상 파일 직링크 */
+  if(/\.(mp4|mov|m4v|webm)(\?|$)/i.test(url)) return `<div class="embed"><video src="${esc(url)}" controls autoplay playsinline preload="metadata"></video></div>`;
+  return "";
+}
+const canEmbed = url => !!embedHtml(url);
+function playHere(btn, url){
+  btn.closest(".videowrap").querySelector(".playslot").innerHTML = embedHtml(decodeURIComponent(url));
+  btn.remove();
+}
+function sparkline(vals,w,h){
+  vals = vals.filter(v=>typeof v==="number");
+  if(vals.length<2) return "";
+  w=w||54; h=h||22;
+  const mn=Math.min(...vals), mx=Math.max(...vals), rg=(mx-mn)||1;
+  const pts = vals.map((v,i)=>`${(i/(vals.length-1)*w).toFixed(1)},${(h-((v-mn)/rg)*(h-4)-2).toFixed(1)}`).join(" ");
+  const up = vals[vals.length-1] >= vals[0];
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="flex:none">
+    <polyline points="${pts}" fill="none" stroke="${up?'var(--ok)':'#ff7a7a'}" stroke-width="1.8"
+      stroke-linecap="round" stroke-linejoin="round" opacity=".9"/></svg>`;
+}
+
+/* =========================================================
+   팁 라이브러리 — 종목별로 모든 팁을 모은다
+   ========================================================= */
+const tipKey = (exk, text) => exk + "|" + normTip(text);
+
+/* 종목 하나의 모든 이력 + 팁 */
+function buildExercise(exk){
+  const rows = [];
+  DB.sessions.forEach(s=>{
+    s.exercises.forEach(e=>{
+      if(normName(e.name) !== exk) return;
+      rows.push({date:s.date, sid:s.id, ex:e});
+    });
+  });
+  rows.sort((a,b)=>a.date.localeCompare(b.date));
+  if(!rows.length && !DB.notes.some(n=>n.ex===exk)) return null;
+
+  const name = rows.length ? rows[rows.length-1].ex.name
+                           : (DB.notes.find(n=>n.ex===exk)||{}).exName || exk;
+
+  /* 같은 말은 하나로 묶고, 몇 번 들었는지 센다 */
+  const map = new Map();
+  rows.forEach(r=>{
+    r.ex.cues.forEach(c=>{
+      const k = normTip(c);
+      if(!k) return;
+      if(!map.has(k)) map.set(k, {text:c, dates:[], own:false});
+      const t = map.get(k);
+      t.text = c;                       // 최신 표현으로 갱신
+      if(!t.dates.includes(r.date)) t.dates.push(r.date);
+    });
+  });
+  DB.notes.filter(n=>n.ex===exk).forEach(n=>{
+    const k = normTip(n.text);
+    if(!k) return;
+    if(!map.has(k)) map.set(k, {text:n.text, dates:[n.date], own:true, id:n.id});
+    else { const t=map.get(k); t.own=true; t.id=n.id; if(!t.dates.includes(n.date)) t.dates.push(n.date); }
+  });
+
+  const tips = [...map.values()].map(t=>{
+    t.dates.sort();
+    t.count = t.dates.length;
+    t.star = !!DB.stars[tipKey(exk, t.text)];
+    t.key = t.star || t.count >= 2;     // 별표했거나 두 번 이상 들은 팁 = 핵심
+    return t;
+  }).sort((a,b)=>
+    (b.star?1:0)-(a.star?1:0) ||
+    b.count-a.count ||
+    (b.dates[b.dates.length-1]||"").localeCompare(a.dates[a.dates.length-1]||"")
+  );
+
+  const videos = [];
+  rows.forEach(r=>{ if(r.ex.video && !videos.some(v=>v.url===r.ex.video)) videos.push({url:r.ex.video, date:r.date}); });
+
+  return {
+    key: exk, name, part: partOfName(name),
+    rows, tips, videos,
+    count: rows.length,
+    last: rows.length ? rows[rows.length-1].date : (DB.notes.filter(n=>n.ex===exk).map(n=>n.date).sort().pop()||""),
+    best: Math.max(0, ...rows.map(r=>maxW(r.ex)||0)),
+  };
+}
+function allExerciseKeys(){
+  const set = new Set();
+  DB.sessions.forEach(s=>s.exercises.forEach(e=>{ if(e.name && e.name.trim()) set.add(normName(e.name)); }));
+  DB.notes.forEach(n=>set.add(n.ex));
+  return [...set];
+}
+function library(){
+  return allExerciseKeys().map(buildExercise).filter(Boolean)
+    .sort((a,b)=> b.last.localeCompare(a.last) || b.count-a.count);
+}
+
+/* =========================================================
+   PT 팁 뷰
+   ========================================================= */
+let curPart = "all";
+let curMode = "ex";
+
+function renderChips(){
+  const lib = library();
+  const counts = {};
+  lib.forEach(o=>{ counts[o.part] = (counts[o.part]||0)+1; });
+  const total = lib.length;
+  let html = `<button class="chip ${curPart==="all"?"on":""}" style="--pc:var(--acc)" onclick="setPart('all')">
+      전체 <span class="cnt">${total}</span></button>`;
+  const ALWAYS = ["leg","chest","back","shoulder"];      // 기본 4부위는 비어도 보여준다
+  PARTS.forEach(p=>{
+    const c = counts[p.k]||0;
+    if(!c && !ALWAYS.includes(p.k)) return;              // 팔·코어·기타는 기록이 있을 때만
+    html += `<button class="chip ${curPart===p.k?"on":""}" style="--pc:${p.c}" onclick="setPart('${p.k}')">
+      <span class="pdot"></span>${p.n} <span class="cnt">${c}</span></button>`;
+  });
+  $("#partChips").innerHTML = html;
+  $("#modeSeg").classList.toggle("hidden", curPart==="all");
+}
+function setPart(k){
+  curPart = k;
+  if(k==="all") curMode = "ex";
+  renderChips(); renderTips();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+$$("#modeSeg button").forEach(b=> b.onclick = ()=>{
+  curMode = b.dataset.m;
+  $$("#modeSeg button").forEach(x=>x.classList.toggle("on", x===b));
+  renderTips();
+});
+$("#tq").oninput = renderTips;
+
+function renderTips(){
+  renderChips();
+  const q = $("#tq").value.trim().toLowerCase();
+  const host = $("#tipsBody");
+
+  if(!DB.sessions.length && !DB.notes.length){
+    host.innerHTML = `<div class="empty"><span class="bigem">🎓</span>
+      <p><b>아직 배운 게 없어요.</b></p>
+      <p>＋추가 탭에서 트레이너가 보낸 카톡을 붙여넣으면<br>부위별로 팁이 쌓이기 시작합니다.</p>
+      <button class="btn primary" style="margin-top:14px" onclick="go('add')">첫 운동 기록하기</button></div>`;
+    return;
+  }
+  if(curPart!=="all" && curMode==="day") return renderPartDays(q);
+
+  let lib = library();
+  if(curPart!=="all") lib = lib.filter(o=>o.part===curPart);
+  if(q) lib = lib.filter(o =>
+    o.name.toLowerCase().includes(q) || o.tips.some(t=>t.text.toLowerCase().includes(q)));
+
+  if(!lib.length){
+    host.innerHTML = `<div class="empty"><span class="bigem">🔍</span><p>${
+      q ? `"${esc(q)}" 에 맞는 팁이 없어요.` : `${partName(curPart)} 운동 기록이 아직 없어요.`}</p></div>`;
+    return;
+  }
+  const totalTips = lib.reduce((a,o)=>a+o.tips.length,0);
+  let html = `<div class="seclabel">${curPart==="all"?"전체":partName(curPart)} · 종목 ${lib.length}개 · 팁 ${totalTips}개</div>`;
+
+  html += lib.map(o=>{
+    const show = o.tips.slice(0,3);
+    const tips = show.map(t=>`
+      <div class="tipitem ${t.key?"key":""}">
+        <span class="bul">${t.star?"★":"●"}</span>
+        <span class="txt">${esc(t.text)}${t.count>1?`<span class="rep">${t.count}번 들음</span>`:""}</span>
+      </div>`).join("");
+    const more = o.tips.length>3 ? `<div class="moretip">＋ 팁 ${o.tips.length-3}개 더 보기</div>` : "";
+    const meta = [o.count?`${o.count}회`:"", o.best?`최고 ${o.best}kg`:""].filter(Boolean).join(" · ");
+    return `<div class="excard" style="--pc:${partColor(o.part)}" onclick="openExercise('${o.key}')">
+      <div class="bar"></div>
+      <div class="exhead">
+        <span class="ptag">${partName(o.part)}</span>
+        <span class="nm">${esc(o.name)}</span>
+        <span class="meta">${meta}</span>
+      </div>
+      <div class="tiplist">${tips || '<div class="tipitem"><span class="txt" style="color:var(--tx3)">저장된 팁이 없어요 — 탭해서 직접 추가</span></div>'}</div>
+      ${more}
+    </div>`;
+  }).join("");
+  host.innerHTML = html;
+}
+
+/* 부위별 · 날짜별 보기 ("다리 운동 1, 2, 3…") */
+function partSessions(part){
+  return DB.sessions
+    .map(s=>({s, exs: s.exercises.filter(e=>partOf(e)===part)}))
+    .filter(o=>o.exs.length)
+    .sort((a,b)=>a.s.date.localeCompare(b.s.date))
+    .map((o,i)=>({...o, nth:i+1}));
+}
+function renderPartDays(q){
+  const list = partSessions(curPart).reverse();
+  const host = $("#tipsBody");
+  const filtered = q ? list.filter(o=>
+    o.exs.some(e=>e.name.toLowerCase().includes(q) || e.cues.join(" ").toLowerCase().includes(q))) : list;
+
+  if(!filtered.length){
+    host.innerHTML = `<div class="empty"><span class="bigem">📅</span><p>${partName(curPart)} 운동 기록이 없어요.</p></div>`;
+    return;
+  }
+  const pc = partColor(curPart);
+  host.innerHTML = `<div class="seclabel">${partName(curPart)} 운동 ${list.length}회 · 최근순</div>` +
+    filtered.map(o=>{
+      const f = fmtDate(o.s.date);
+      const tipCount = o.exs.reduce((a,e)=>a+e.cues.length,0);
+      const rows = o.exs.map((e,i)=>`
+        <div class="exline">
+          <span class="ix" style="background:color-mix(in srgb,${pc} 16%,transparent);color:${pc}">${i+1}</span>
+          <span class="nm">${esc(e.name)}</span>
+          ${e.video?'<span class="vd">🎬</span>':""}
+          <span class="sm">${esc(summarize(e))}</span>
+        </div>`).join("");
+      return `<div class="card" style="--pc:${pc}" onclick="openPartDay('${curPart}','${o.s.id}')">
+        <div class="accentbar" style="background:${pc}"></div>
+        <div class="chead">
+          <span class="nth">${partName(curPart)} 운동 #${o.nth}</span>
+          <span class="cdate" style="font-size:14px">${f.m}월 ${f.d}일</span>
+          <span class="cdow">${f.dow}</span>
+          <span class="cnum">팁 ${tipCount}개</span>
+        </div>
+        ${rows}
+      </div>`;
+    }).join("");
+}
+
+/* =========================================================
+   종목 상세 시트 — PT 선생님이 알려준 것 전부
+   ========================================================= */
+function openExercise(exk){
+  const o = buildExercise(exk);
+  if(!o) return;
+  const pc = partColor(o.part);
+
+  const chips = PARTS.map(p=>
+    `<button class="pp ${o.part===p.k?"on":""}" style="--pc:${p.c}" onclick="setExPart('${exk}','${p.k}')">${p.n}</button>`
+  ).join("");
+
+  const keyTips = o.tips.filter(t=>t.key);
+  const restTips = o.tips.filter(t=>!t.key);
+  const tipRow = t=>{
+    const ds = t.dates.map(d=>{const f=fmtDate(d);return `${f.m}/${f.d}`;});
+    const when = t.own ? `<b>직접 추가</b> · ${ds[ds.length-1]}`
+      : (t.count>1 ? `<b>${t.count}번 들음</b> · ${ds.join(", ")}` : ds[0]);
+    return `<div class="tiprow ${t.key?"key":""}">
+      <button class="star ${t.star?"on":""}" onclick="toggleStar('${exk}','${encodeURIComponent(t.text)}')">${t.star?"★":"☆"}</button>
+      <div class="body">
+        <div class="t">${esc(t.text)}</div>
+        <div class="when">${when}${t.own?` <button class="delx" style="font-size:12px" onclick="delNote('${t.id}','${exk}')">삭제</button>`:""}</div>
+      </div>
+    </div>`;
+  };
+
+  const hist = [...o.rows].reverse().map(r=>{
+    const f = fmtDate(r.date);
+    const m = maxW(r.ex);
+    return `<div class="histrow" onclick="closeSheet();openSession('${r.sid}')">
+      <span class="d">${f.m}/${f.d}</span>
+      <span class="s">${esc(r.ex.sets.map(setLabel).join(", ")||"세트 기록 없음")}</span>
+      <span class="m">${m?m+"kg":"—"}</span>
+    </div>`;
+  }).join("");
+
+  const vids = o.videos.map(v=>{
+    const f = fmtDate(v.date);
+    return `<div class="videowrap" style="margin-top:9px">
+      ${canEmbed(v.url)
+        ? `<button class="vidbtn" style="background:color-mix(in srgb,${pc} 14%,transparent);color:${pc}" onclick="playHere(this,'${encodeURIComponent(v.url)}')">▶︎ ${f.m}/${f.d} 자세 영상 재생</button>`
+        : `<a class="vidbtn" style="background:color-mix(in srgb,${pc} 14%,transparent);color:${pc}" href="${esc(v.url)}" target="_blank" rel="noopener">🎬 ${f.m}/${f.d} 자세 영상 열기</a>`}
+      <div class="playslot"></div>
+    </div>`;
+  }).join("");
+
+  const vals = o.rows.map(r=>maxW(r.ex)).filter(v=>typeof v==="number");
+
+  $("#sheetHost").innerHTML = `<div class="sheet" style="--pc:${pc}">
+    <div class="sheetbar">
+      <button class="iconbtn" onclick="closeSheet()">✕</button>
+      <span class="ttl">${esc(o.name)}</span>
+    </div>
+    <div class="sheetbody">
+      <div class="hero">
+        <h2>${esc(o.name)}</h2>
+        <div class="row">
+          <span class="mini">${o.count}회 진행 · 팁 ${o.tips.length}개${o.best?` · 최고 ${o.best}kg`:""}</span>
+          ${vals.length>1?sparkline(vals,60,20):""}
+        </div>
+      </div>
+
+      <div class="partpick">${chips}</div>
+      <div class="hint" style="margin:-2px 0 14px">부위를 바꾸면 이 운동의 모든 날짜에 함께 적용됩니다.</div>
+
+      ${keyTips.length?`<div class="tipblk">
+        <h4>⭐ 핵심 팁 <span style="color:var(--tx3);font-weight:600">· 별표했거나 두 번 이상 들은 것</span></h4>
+        ${keyTips.map(tipRow).join("")}
+      </div>`:""}
+
+      <div class="tipblk">
+        <h4>${keyTips.length?"그 외 팁":"선생님이 알려준 것"} ${restTips.length?`<span style="color:var(--tx3);font-weight:600">· ${restTips.length}개</span>`:""}</h4>
+        ${restTips.length ? restTips.map(tipRow).join("")
+          : `<div class="hint" style="margin:0">${keyTips.length?"더 없습니다.":"아직 저장된 팁이 없어요. 아래에서 직접 추가해 보세요."}</div>`}
+        <div class="addtip">
+          <input id="newTip" placeholder="선생님이 말로 알려준 팁 추가" onkeydown="if(event.key==='Enter')addNote('${exk}')">
+          <button onclick="addNote('${exk}')">추가</button>
+        </div>
+      </div>
+
+      ${vids?`<div class="tipblk"><h4>🎬 자세 영상</h4>${vids}</div>`:""}
+
+      ${hist?`<div class="tipblk"><h4>📊 중량 이력</h4>${hist}</div>`:""}
+    </div>
+  </div>`;
+  document.body.style.overflow = "hidden";
+}
+function setExPart(exk, pk){
+  DB.parts[exk] = pk; save();
+  openExercise(exk); renderTips(); renderLog();
+  toast(partName(pk)+" 운동으로 옮겼어요");
+}
+function toggleStar(exk, encText){
+  const text = decodeURIComponent(encText);
+  const k = tipKey(exk, text);
+  if(DB.stars[k]) delete DB.stars[k]; else DB.stars[k] = true;
+  save(); openExercise(exk); renderTips();
+}
+function addNote(exk){
+  const el = $("#newTip");
+  const text = el.value.trim();
+  if(!text) return;
+  const o = buildExercise(exk);
+  DB.notes.push({id:uid("n"), ex:exk, exName:o?o.name:exk, text, date:todayStr(), createdAt:Date.now()});
+  save(); openExercise(exk); renderTips();
+  toast("팁을 추가했어요");
+}
+function delNote(id, exk){
+  DB.notes = DB.notes.filter(n=>n.id!==id);
+  save(); renderTips();
+  if(buildExercise(exk)) openExercise(exk); else closeSheet();
+  toast("삭제했습니다");
+}
+
+/* 부위 × 날짜 시트 ("다리 운동 #3") */
+function openPartDay(part, sid){
+  const s = DB.sessions.find(x=>x.id===sid);
+  if(!s) return;
+  const all = partSessions(part);
+  const nth = (all.find(o=>o.s.id===sid)||{}).nth || "";
+  const exs = s.exercises.filter(e=>partOf(e)===part);
+  const f = fmtDate(s.date);
+  const pc = partColor(part);
+
+  const body = exs.map((e,i)=>{
+    const cues = e.cues.length ? `<ul class="cuelist">${e.cues.map(c=>`<li>${esc(c)}</li>`).join("")}</ul>` : "";
+    const mx = maxW(e)||0;
+    const rows = e.sets.map((st,j)=>`<div class="setrow">
+        <span class="no">${j+1}세트</span>
+        <span class="wt">${st.w!=null? st.w+(st.u||"") : (st.t||st.raw||"—")}</span>
+        <span class="rp">${st.r!=null? st.r+"회":""}</span>
+        <span class="bar2" style="width:${mx?Math.max(6,Math.round((st.w||0)/mx*72)):6}px"></span>
+      </div>`).join("");
+    return `<div class="dex" style="--pc:${pc}">
+      <h3><span class="n" style="background:${pc}">${i+1}</span>${esc(e.name)}</h3>
+      ${cues}
+      ${rows?`<div class="settable">${rows}</div>`:""}
+      <div class="volume"><span>탭해서 이 종목의 팁 전체 보기 →</span></div>
+      <button class="btn sm full" style="margin-top:9px" onclick="closeSheet();openExercise('${normName(e.name)}')">🎓 ${esc(e.name)} 팁 모아보기</button>
+    </div>`;
+  }).join("");
+
+  $("#sheetHost").innerHTML = `<div class="sheet" style="--pc:${pc}">
+    <div class="sheetbar">
+      <button class="iconbtn" onclick="closeSheet()">✕</button>
+      <span class="ttl">${partName(part)} 운동 #${nth}</span>
+      <button class="iconbtn" style="margin-left:auto" onclick="closeSheet();openSession('${s.id}')" title="이 날 전체">📒</button>
+    </div>
+    <div class="sheetbody">
+      <div class="hero">
+        <h2>${partName(part)} 운동 #${nth}</h2>
+        <div class="row"><span class="mini">${f.y}년 ${f.m}월 ${f.d}일 (${f.dow}) · 종목 ${exs.length}개</span></div>
+      </div>
+      ${s.memo?`<div class="prevbox" style="margin:0 0 13px">📝 ${esc(s.memo)}</div>`:""}
+      ${body}
+    </div>
+  </div>`;
+  document.body.style.overflow = "hidden";
+}
+
+/* =========================================================
+   기록 뷰
+   ========================================================= */
+function renderStats(){
+  const ss = DB.sessions;
+  const ym = todayStr().slice(0,7);
+  const thisMonth = ss.filter(s=>s.date.slice(0,7)===ym).length;
+  let tips = 0;
+  ss.forEach(s=>s.exercises.forEach(e=>{ tips += e.cues.length; }));
+  tips += DB.notes.length;
+  const latest = ss.length ? ss.reduce((a,b)=> a.date>=b.date?a:b) : null;
+  const last = latest ? (()=>{
+    const diff = Math.round((new Date(todayStr()+"T00:00:00") - new Date(latest.date+"T00:00:00"))/86400000);
+    return diff===0?"오늘":diff===1?"어제":diff+"일 전";
+  })() : "—";
+  $("#stats").innerHTML = `
+    <div class="stat"><b>${ss.length}</b><span>총 세션</span></div>
+    <div class="stat"><b>${thisMonth}</b><span>이번 달</span></div>
+    <div class="stat"><b>${tips}</b><span>모은 팁</span></div>
+    <div class="stat"><b style="font-size:16px;padding-top:2px">${last}</b><span>마지막 운동</span></div>`;
+}
+function renderLog(){
+  renderStats();
+  const q = $("#q").value.trim().toLowerCase();
+  let list = [...DB.sessions].sort((a,b)=> b.date.localeCompare(a.date) || (b.createdAt||0)-(a.createdAt||0));
+  if(q) list = list.filter(s =>
+    s.date.includes(q) || (s.memo||"").toLowerCase().includes(q) ||
+    s.exercises.some(e=>e.name.toLowerCase().includes(q) || e.cues.join(" ").toLowerCase().includes(q)));
+
+  const host = $("#logList");
+  if(!list.length){
+    host.innerHTML = q
+      ? `<div class="empty"><span class="bigem">🔍</span><p>"${esc(q)}" 에 맞는 기록이 없어요.</p></div>`
+      : `<div class="empty"><span class="bigem">🍪</span><p><b>아직 기록이 없어요.</b></p>
+         <p>＋추가 탭에서 카톡 내용을 붙여넣어 보세요.</p>
+         <button class="btn primary" style="margin-top:14px" onclick="go('add')">첫 운동 기록하기</button></div>`;
+    return;
+  }
+  let html = "", lastYM = "";
+  list.forEach(s=>{
+    const ym = s.date.slice(0,7);
+    if(ym!==lastYM){
+      lastYM = ym;
+      const [y,m] = ym.split("-");
+      html += `<div class="seclabel">${y}년 ${+m}월 · ${list.filter(x=>x.date.slice(0,7)===ym).length}회</div>`;
+    }
+    const f = fmtDate(s.date);
+    const parts = [...new Set(s.exercises.map(partOf))];
+    const ptags = parts.map(p=>`<span class="ptag" style="--pc:${partColor(p)}">${partName(p)}</span>`).join(" ");
+    const rows = s.exercises.slice(0,5).map((e,i)=>`
+      <div class="exline">
+        <span class="ix" style="background:color-mix(in srgb,${partColor(partOf(e))} 16%,transparent);color:${partColor(partOf(e))}">${i+1}</span>
+        <span class="nm">${esc(e.name)}</span>
+        ${e.video?'<span class="vd">🎬</span>':""}
+        <span class="sm">${esc(summarize(e))}</span>
+      </div>`).join("");
+    const more = s.exercises.length>5
+      ? `<div class="exline"><span class="ix" style="background:none;color:var(--tx3)">＋</span><span class="nm" style="color:var(--tx3);font-weight:500">외 ${s.exercises.length-5}개</span></div>` : "";
+    html += `<div class="card" onclick="openSession('${s.id}')">
+      <div class="accentbar"></div>
+      <div class="chead">
+        <span class="cdate">${f.m}월 ${f.d}일</span>
+        <span class="cdow">${f.dow}</span>
+        <span class="cnum">${ptags}</span>
+      </div>
+      ${rows}${more}
+      ${s.memo?`<div class="memoline">${esc(s.memo)}</div>`:""}
+    </div>`;
+  });
+  host.innerHTML = html;
+}
+
+function historyBefore(name, date){
+  const nn = normName(name);
+  return DB.sessions.filter(s=>s.date<date && s.exercises.some(e=>normName(e.name)===nn))
+    .sort((a,b)=>b.date.localeCompare(a.date));
+}
+function openSession(id){
+  const s = DB.sessions.find(x=>x.id===id);
+  if(!s) return;
+  const f = fmtDate(s.date);
+  const body = s.exercises.map((e,i)=>{
+    const pk = partOf(e), pc = partColor(pk);
+    const cues = e.cues.length ? `<ul class="cuelist">${e.cues.map(c=>`<li>${esc(c)}</li>`).join("")}</ul>` : "";
+    const mx = maxW(e)||0;
+    const rows = e.sets.map((st,j)=>`<div class="setrow">
+        <span class="no">${j+1}세트</span>
+        <span class="wt">${st.w!=null? st.w+(st.u||"") : (st.t||st.raw||"—")}</span>
+        <span class="rp">${st.r!=null? st.r+"회":""}</span>
+        <span class="bar2" style="width:${mx?Math.max(6,Math.round((st.w||0)/mx*72)):6}px"></span>
+      </div>`).join("");
+    const meta = [];
+    if(e.sets.length) meta.push(`총 ${e.sets.length}세트`);
+    if(e.declared && e.declared!==e.sets.length) meta.push(`메시지 표기 ${e.declared}세트`);
+    if(volumeOf(e)) meta.push(`볼륨 ${volumeOf(e).toLocaleString()}kg`);
+
+    const hist = historyBefore(e.name, s.date);
+    let prevBox = "";
+    if(hist.length){
+      const ps = hist[0], pe = ps.exercises.find(x=>normName(x.name)===normName(e.name));
+      const pm = maxW(pe), cm = maxW(e);
+      let d = "";
+      if(pm!=null && cm!=null){
+        const df = cm-pm, cls = df>0?"up":df<0?"down":"same";
+        d = ` <span class="diff ${cls}">${df>0?"▲ +"+df:df<0?"▼ "+df:"— 동일"}${df!==0?"kg":""}</span>`;
+      }
+      const pf = fmtDate(ps.date);
+      prevBox = `<div class="prevbox">직전 (${pf.m}/${pf.d}) <b>${esc(summarize(pe))}</b>${d}</div>`;
+    }
+    const vid = e.video ? `<div class="videowrap">
+        ${canEmbed(e.video)
+          ? `<button class="vidbtn" onclick="playHere(this,'${encodeURIComponent(e.video)}')">▶︎ 자세 영상 재생</button>`
+          : `<a class="vidbtn" href="${esc(e.video)}" target="_blank" rel="noopener">🎬 자세 영상 열기</a>`}
+        <div class="playslot"></div>
+      </div>` : "";
+    return `<div class="dex" style="--pc:${pc}">
+      <h3><span class="n" style="background:${pc}">${i+1}</span>${esc(e.name)}
+        <span class="ptag" style="--pc:${pc};margin-left:auto">${partName(pk)}</span></h3>
+      ${cues}
+      ${rows?`<div class="settable">${rows}</div>`:""}
+      ${meta.length?`<div class="volume">${meta.map(m=>`<span>${esc(m)}</span>`).join("")}</div>`:""}
+      ${prevBox}
+      ${vid}
+      <button class="btn sm full" style="margin-top:10px" onclick="closeSheet();openExercise('${normName(e.name)}')">🎓 이 종목 팁 모아보기</button>
+    </div>`;
+  }).join("");
+
+  $("#sheetHost").innerHTML = `<div class="sheet">
+    <div class="sheetbar">
+      <button class="iconbtn" onclick="closeSheet()">✕</button>
+      <span class="ttl">${f.y}. ${f.m}. ${f.d} (${f.dow})</span>
+      <button class="iconbtn" style="margin-left:auto" onclick="editSession('${s.id}')">✎</button>
+      <button class="iconbtn" onclick="delSession('${s.id}')">🗑</button>
+    </div>
+    <div class="sheetbody">
+      ${s.memo?`<div class="prevbox" style="margin:0 0 13px">📝 ${esc(s.memo)}</div>`:""}
+      ${body || '<div class="empty"><p>기록된 운동이 없습니다.</p></div>'}
+      <div class="hint" style="text-align:center;margin-top:18px">${s.exercises.length}개 운동 · 총 볼륨 ${s.exercises.reduce((a,e)=>a+volumeOf(e),0).toLocaleString()}kg</div>
+    </div>
+  </div>`;
+  document.body.style.overflow = "hidden";
+}
+function closeSheet(){ $("#sheetHost").innerHTML=""; document.body.style.overflow=""; }
+function delSession(id){
+  if(!confirm("이 날짜 기록을 삭제할까요?")) return;
+  DB.sessions = DB.sessions.filter(s=>s.id!==id);
+  save(); closeSheet(); renderLog(); renderTips(); toast("삭제했습니다");
+}
+function editSession(id){
+  const s = DB.sessions.find(x=>x.id===id);
+  if(!s) return;
+  closeSheet(); editingId = id;
+  $("#aDate").value = s.date; $("#aMemo").value = s.memo||""; $("#aRaw").value = "";
+  draft = JSON.parse(JSON.stringify(s.exercises));
+  go("add"); renderParsed();
+  toast("수정 모드 — 저장하면 덮어씁니다");
+  window.scrollTo(0,0);
+}
+
+/* =========================================================
+   추가 뷰
+   ========================================================= */
+let draft = null, editingId = null;
+
+function renderParsed(){
+  const host = $("#parsed");
+  if(!draft || !draft.length){ host.innerHTML=""; $("#saveWrap").classList.add("hidden"); return; }
+  host.innerHTML = `<div class="seclabel">정리 결과 · 운동 ${draft.length}개 (수정 가능)</div>` +
+    draft.map((e,i)=>{
+      const pk = e.part || classify(e.name);
+      const warn = (e.declared && e.sets.length && e.declared!==e.sets.length)
+        ? `<span class="pill warn">표기 ${e.declared}세트</span>` : "";
+      const picks = PARTS.map(p=>
+        `<button class="pp ${pk===p.k?"on":""}" style="--pc:${p.c}" onclick="setDraftPart(${i},'${p.k}')">${p.n}</button>`).join("");
+      const cues = e.cues.map((c,j)=>`<div class="pcue">${esc(c)} <button class="delx" onclick="delCue(${i},${j})">×</button></div>`).join("");
+      const chips = e.sets.map((s,j)=>`<span class="setchip"><i>${j+1}</i>${setLabel(s)} <button class="delx" style="font-size:12px" onclick="delSet(${i},${j})">×</button></span>`).join("");
+      return `<div class="pcard">
+        <div class="phead">
+          <span class="pill mut">${i+1}</span>
+          <input value="${esc(e.name)}" oninput="draft[${i}].name=this.value;draft[${i}].part=classify(this.value);renderPartPick(${i})" placeholder="운동 이름">
+          ${warn}
+          <button class="delx" onclick="delEx(${i})">🗑</button>
+        </div>
+        <div class="partpick" id="pp${i}">${picks}</div>
+        ${cues}
+        ${chips?`<div class="psets">${chips}</div>`:'<div class="hint" style="margin-top:6px">세트 정보를 못 찾았어요.</div>'}
+        <div class="vidinp">
+          <span>🎬</span>
+          <input value="${esc(e.video||"")}" oninput="draft[${i}].video=this.value.trim()" placeholder="영상 링크 붙여넣기 (선택)">
+        </div>
+      </div>`;
+    }).join("");
+  $("#saveWrap").classList.remove("hidden");
+}
+function renderPartPick(i){
+  const pk = draft[i].part;
+  const host = $("#pp"+i);
+  if(host) host.innerHTML = PARTS.map(p=>
+    `<button class="pp ${pk===p.k?"on":""}" style="--pc:${p.c}" onclick="setDraftPart(${i},'${p.k}')">${p.n}</button>`).join("");
+}
+function setDraftPart(i,pk){ draft[i].part = pk; renderPartPick(i); }
+function delCue(i,j){ draft[i].cues.splice(j,1); renderParsed(); }
+function delSet(i,j){ draft[i].sets.splice(j,1); renderParsed(); }
+function delEx(i){ draft.splice(i,1); renderParsed(); }
+
+$("#parseBtn").onclick = ()=>{
+  const raw = $("#aRaw").value;
+  if(!raw.trim()) return toast("붙여넣은 내용이 없어요");
+  const r = parseMessage(raw);
+  if(!r.exercises.length) return toast("운동을 못 찾았어요 — 번호(1. 2.)가 있는지 볼까요?");
+  draft = r.exercises;
+  if(r.memo && !$("#aMemo").value) $("#aMemo").value = r.memo;
+  const d = parseDateFrom(raw);
+  if(d) $("#aDate").value = d;
+  renderParsed();
+  const ps = [...new Set(draft.map(e=>partName(e.part)))].join("·");
+  toast(`운동 ${r.exercises.length}개 · ${ps}`);
+  setTimeout(()=>$("#parsed").scrollIntoView({behavior:"smooth",block:"start"}), 60);
+};
+$("#clearRaw").onclick = ()=>{ $("#aRaw").value=""; $("#aMemo").value=""; draft=null; editingId=null; renderParsed(); };
+$("#addExBtn").onclick = ()=>{
+  if(!draft) draft=[];
+  draft.push({name:"", part:"etc", cues:[], sets:[], declared:null, rawSets:"", video:""});
+  renderParsed();
+};
+$("#saveBtn").onclick = ()=>{
+  if(!draft || !draft.length) return toast("저장할 운동이 없어요");
+  const date = $("#aDate").value || todayStr();
+  const memo = $("#aMemo").value.trim();
+  const clean = draft.filter(e=>e.name.trim()).map(e=>({...e, name:e.name.trim(), part:e.part||classify(e.name)}));
+  if(!clean.length) return toast("운동 이름을 채워주세요");
+
+  /* 정리 화면에서 부위를 손댔으면 그 운동의 기본 부위로 기억한다 */
+  clean.forEach(e=>{ if(e.part !== classify(e.name)) DB.parts[normName(e.name)] = e.part; });
+
+  if(editingId){
+    const s = DB.sessions.find(x=>x.id===editingId);
+    if(s){ s.date=date; s.memo=memo; s.exercises=clean; }
+    editingId = null;
+  } else {
+    DB.sessions.push({id:uid(), date, memo, exercises:clean, createdAt:Date.now()});
+  }
+  save();
+  draft=null; $("#aRaw").value=""; $("#aMemo").value=""; renderParsed();
+  renderLog(); renderTips(); go("tips");
+  toast("🍪 저장했습니다");
+  window.scrollTo(0,0);
+};
+
+/* =========================================================
+   설정
+   ========================================================= */
+$("#expBtn").onclick = ()=>{
+  const blob = new Blob([JSON.stringify(DB,null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `snackpt-backup_${todayStr()}.json`;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  toast("백업 파일을 내려받았어요");
+};
+$("#impBtn").onclick = ()=> $("#impFile").click();
+$("#impFile").onchange = ev=>{
+  const file = ev.target.files[0];
+  if(!file) return;
+  const fr = new FileReader();
+  fr.onload = ()=>{
+    try{
+      const inc = JSON.parse(fr.result);
+      if(!inc || !Array.isArray(inc.sessions)) throw 0;
+      const have = new Set(DB.sessions.map(s=>s.id));
+      const keys = new Set(DB.sessions.map(s=>s.date+"|"+s.exercises.map(e=>e.name).join(",")));
+      let n = 0;
+      inc.sessions.forEach(s=>{
+        const k = s.date+"|"+(s.exercises||[]).map(e=>e.name).join(",");
+        if(have.has(s.id) || keys.has(k)) return;
+        DB.sessions.push({...s, id:s.id||uid()}); n++;
+      });
+      Object.assign(DB.parts, inc.parts||{});
+      Object.assign(DB.stars, inc.stars||{});
+      const noteIds = new Set(DB.notes.map(x=>x.id));
+      (inc.notes||[]).forEach(x=>{ if(!noteIds.has(x.id)) DB.notes.push(x); });
+      DB = migrate(DB); save();
+      renderLog(); renderTips(); renderDataInfo();
+      toast(n ? `${n}개 기록을 합쳤어요` : "새로 추가할 기록이 없었어요");
+    }catch(e){ toast("읽을 수 없는 백업 파일이에요"); }
+    ev.target.value = "";
+  };
+  fr.readAsText(file);
+};
+$("#wipeBtn").onclick = ()=>{
+  if(!confirm("모든 팁과 기록이 지워집니다. 백업은 받으셨나요?")) return;
+  if(!confirm("정말 전부 삭제할까요?")) return;
+  DB = {version:2, sessions:[], parts:{}, stars:{}, notes:[]}; save();
+  renderLog(); renderTips(); renderDataInfo(); toast("전체 삭제했습니다");
+};
+function renderDataInfo(){
+  const bytes = new Blob([JSON.stringify(DB)]).size;
+  const ex = DB.sessions.reduce((a,s)=>a+s.exercises.length,0);
+  let tips = 0; DB.sessions.forEach(s=>s.exercises.forEach(e=>tips+=e.cues.length));
+  $("#dataInfo").innerHTML = `기록 <b>${DB.sessions.length}일</b> · 운동 <b>${ex}개</b> · 팁 <b>${tips+DB.notes.length}개</b> · 약 ${(bytes/1024).toFixed(1)}KB`;
+}
+
+/* =========================================================
+   내비게이션 · 테마
+   ========================================================= */
+function go(v){
+  $$(".view").forEach(el=>el.classList.add("hidden"));
+  $("#v-"+v).classList.remove("hidden");
+  $$(".tab").forEach(t=>t.classList.toggle("on", t.dataset.v===v));
+  if(v==="tips") renderTips();
+  if(v==="log") renderLog();
+  if(v==="set") renderDataInfo();
+}
+$$(".tab").forEach(t=> t.onclick = ()=>{ go(t.dataset.v); window.scrollTo({top:0,behavior:"smooth"}); });
+$("#q").oninput = renderLog;
+
+function applyTheme(t){
+  document.documentElement.dataset.theme = t;
+  document.querySelector('meta[name=theme-color]').content = t==="light"?"#f4f5f8":"#0f1115";
+  localStorage.setItem(THEME_KEY,t);
+}
+$("#themeBtn").onclick = ()=> applyTheme(document.documentElement.dataset.theme==="light"?"dark":"light");
+applyTheme(localStorage.getItem(THEME_KEY) || (matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"));
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeSheet(); });
+
+/* 시작 */
+$("#aDate").value = todayStr();
+renderTips();
+</script>
+</body>
+</html>
