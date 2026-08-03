@@ -291,9 +291,9 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
   <!-- ============ PT 팁 (홈) ============ -->
   <div class="view" id="v-tips">
     <div class="chiprow" id="partChips"></div>
-    <div class="seg hidden" id="modeSeg">
-      <button data-m="ex" class="on">종목별 팁</button>
-      <button data-m="day">날짜별로 보기</button>
+    <div class="seg" id="modeSeg">
+      <button data-m="set" class="on">운동 세트</button>
+      <button data-m="ex">종목별 팁</button>
     </div>
     <div class="search">
       <span>🔍</span>
@@ -410,7 +410,7 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
    스낵PT — 부위별 PT 팁 아카이브
    ========================================================= */
 const KEY = "snackpt.v1", THEME_KEY = "snackpt.theme";
-const APP_VERSION = "1.2";           // 배포할 때마다 올린다
+const APP_VERSION = "1.3";           // 배포할 때마다 올린다
 const APP_BUILT   = "2026-08-03";
 
 /* ---------- 운동 부위 ---------- */
@@ -459,9 +459,10 @@ function load(){
 }
 function migrate(db){
   db.version = 2;
-  db.parts = db.parts || {};   // 정규화된 운동명 → 사용자가 지정한 부위
-  db.stars = db.stars || {};   // 팁 키 → true
-  db.notes = db.notes || [];   // 직접 추가한 팁
+  db.parts  = db.parts  || {};  // 정규화된 운동명 → 사용자가 지정한 부위
+  db.sparts = db.sparts || {};  // 세션 id → 사용자가 지정한 세트 부위
+  db.stars  = db.stars  || {};  // 팁 키 → true
+  db.notes  = db.notes  || [];  // 직접 추가한 팁
   db.sessions.forEach(s=>{
     s.exercises = s.exercises || [];
     s.exercises.forEach(e=>{
@@ -627,6 +628,33 @@ function maxW(ex){
 function partOf(ex){ return DB.parts[normName(ex.name)] || ex.part || classify(ex.name); }
 function partOfName(name){ return DB.parts[normName(name)] || classify(name); }
 
+/* ---------- 운동 세트 (= 한 번에 붙여넣은 메시지 하나) ----------
+   세트의 부위는 그 안에 가장 많은 종목이 속한 부위로 정한다.
+   같으면 첫 종목의 부위. 사용자가 지정했으면 그게 우선. */
+function sessionPart(s){
+  if(DB.sparts[s.id]) return DB.sparts[s.id];
+  const counts = {};
+  s.exercises.forEach(e=>{ const p = partOf(e); counts[p] = (counts[p]||0)+1; });
+  let best = null, n = 0;
+  for(const k in counts) if(counts[k] > n){ n = counts[k]; best = k; }
+  return best || "etc";
+}
+/* 부위별로 오래된 것부터 1, 2, 3… 번호를 매긴다 */
+function routineIndex(){
+  const map = {}, byPart = {};
+  [...DB.sessions]
+    .sort((a,b)=> a.date.localeCompare(b.date) || (a.createdAt||0)-(b.createdAt||0))
+    .forEach(s=>{
+      const p = sessionPart(s);
+      byPart[p] = (byPart[p]||0)+1;
+      map[s.id] = {part:p, nth:byPart[p]};
+    });
+  return map;
+}
+function routineCount(part){
+  return DB.sessions.filter(s=>sessionPart(s)===part).length;
+}
+
 function embedHtml(url){
   /* 유튜브 (일반·쇼츠·라이브 모두) */
   const yt = url.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
@@ -732,13 +760,20 @@ function library(){
    PT 팁 뷰
    ========================================================= */
 let curPart = "all";
-let curMode = "ex";
+let curMode = "set";           // 기본은 세트(붙여넣은 메시지 단위)
 
 function renderChips(){
-  const lib = library();
+  /* 세트 모드에선 세트 개수를, 종목 모드에선 종목 개수를 센다 */
   const counts = {};
-  lib.forEach(o=>{ counts[o.part] = (counts[o.part]||0)+1; });
-  const total = lib.length;
+  let total;
+  if(curMode === "set"){
+    DB.sessions.forEach(s=>{ const p = sessionPart(s); counts[p] = (counts[p]||0)+1; });
+    total = DB.sessions.length;
+  } else {
+    const lib = library();
+    lib.forEach(o=>{ counts[o.part] = (counts[o.part]||0)+1; });
+    total = lib.length;
+  }
   let html = `<button class="chip ${curPart==="all"?"on":""}" style="--pc:var(--acc)" onclick="setPart('all')">
       전체 <span class="cnt">${total}</span></button>`;
   const ALWAYS = ["leg","chest","back","shoulder"];      // 기본 4부위는 비어도 보여준다
@@ -749,11 +784,9 @@ function renderChips(){
       <span class="pdot"></span>${p.n} <span class="cnt">${c}</span></button>`;
   });
   $("#partChips").innerHTML = html;
-  $("#modeSeg").classList.toggle("hidden", curPart==="all");
 }
 function setPart(k){
   curPart = k;
-  if(k==="all") curMode = "ex";
   renderChips(); renderTips();
   window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -776,7 +809,7 @@ function renderTips(){
       <button class="btn primary" style="margin-top:14px" onclick="go('add')">첫 운동 기록하기</button></div>`;
     return;
   }
-  if(curPart!=="all" && curMode==="day") return renderPartDays(q);
+  if(curMode==="set") return renderRoutines(q);
 
   let lib = library();
   if(curPart!=="all") lib = lib.filter(o=>o.part===curPart);
@@ -814,47 +847,52 @@ function renderTips(){
   host.innerHTML = html;
 }
 
-/* 부위별 · 날짜별 보기 ("다리 운동 1, 2, 3…") */
-function partSessions(part){
-  return DB.sessions
-    .map(s=>({s, exs: s.exercises.filter(e=>partOf(e)===part)}))
-    .filter(o=>o.exs.length)
-    .sort((a,b)=>a.s.date.localeCompare(b.s.date))
-    .map((o,i)=>({...o, nth:i+1}));
-}
-function renderPartDays(q){
-  const list = partSessions(curPart).reverse();
+/* 운동 세트 목록 — 한 번에 붙여넣은 메시지 하나 = 세트 하나 */
+function renderRoutines(q){
+  const idx = routineIndex();
   const host = $("#tipsBody");
-  const filtered = q ? list.filter(o=>
-    o.exs.some(e=>e.name.toLowerCase().includes(q) || e.cues.join(" ").toLowerCase().includes(q))) : list;
+  let list = [...DB.sessions].sort((a,b)=>
+    b.date.localeCompare(a.date) || (b.createdAt||0)-(a.createdAt||0));
+  if(curPart!=="all") list = list.filter(s=>idx[s.id].part===curPart);
+  if(q) list = list.filter(s=>
+    s.exercises.some(e=>e.name.toLowerCase().includes(q) || e.cues.join(" ").toLowerCase().includes(q))
+    || (s.memo||"").toLowerCase().includes(q));
 
-  if(!filtered.length){
-    host.innerHTML = `<div class="empty"><span class="bigem">📅</span><p>${partName(curPart)} 운동 기록이 없어요.</p></div>`;
+  if(!list.length){
+    host.innerHTML = `<div class="empty"><span class="bigem">🗂</span><p>${
+      q ? `"${esc(q)}" 에 맞는 세트가 없어요.`
+        : curPart==="all" ? "아직 저장한 세트가 없어요."
+        : `${partName(curPart)} 세트가 아직 없어요.`}</p></div>`;
     return;
   }
-  const pc = partColor(curPart);
-  host.innerHTML = `<div class="seclabel">${partName(curPart)} 운동 ${list.length}회 · 최근순</div>` +
-    filtered.map(o=>{
-      const f = fmtDate(o.s.date);
-      const tipCount = o.exs.reduce((a,e)=>a+e.cues.length,0);
-      const rows = o.exs.map((e,i)=>`
-        <div class="exline">
-          <span class="ix" style="background:color-mix(in srgb,${pc} 16%,transparent);color:${pc}">${i+1}</span>
-          <span class="nm">${esc(e.name)}</span>
-          ${e.video?'<span class="vd">🎬</span>':""}
-          <span class="sm">${esc(summarize(e))}</span>
-        </div>`).join("");
-      return `<div class="card" style="--pc:${pc}" onclick="openPartDay('${curPart}','${o.s.id}')">
-        <div class="accentbar" style="background:${pc}"></div>
-        <div class="chead">
-          <span class="nth">${partName(curPart)} 운동 #${o.nth}</span>
-          <span class="cdate" style="font-size:14px">${f.m}월 ${f.d}일</span>
-          <span class="cdow">${f.dow}</span>
-          <span class="cnum">팁 ${tipCount}개</span>
-        </div>
-        ${rows}
-      </div>`;
-    }).join("");
+  const label = curPart==="all"
+    ? `전체 ${list.length}세트 · 최근순`
+    : `${partName(curPart)} 운동 ${list.length}세트 · 오늘 할 걸 고르세요`;
+
+  host.innerHTML = `<div class="seclabel">${label}</div>` + list.map(s=>{
+    const {part, nth} = idx[s.id];
+    const pc = partColor(part);
+    const f = fmtDate(s.date);
+    const tipCount = s.exercises.reduce((a,e)=>a+e.cues.length,0);
+    const rows = s.exercises.map((e,i)=>`
+      <div class="exline">
+        <span class="ix" style="background:color-mix(in srgb,${partColor(partOf(e))} 16%,transparent);color:${partColor(partOf(e))}">${i+1}</span>
+        <span class="nm">${esc(e.name)}</span>
+        ${e.video?'<span class="vd">🎬</span>':""}
+        <span class="sm">${esc(summarize(e))}</span>
+      </div>`).join("");
+    return `<div class="card" style="--pc:${pc}" onclick="openRoutine('${s.id}')">
+      <div class="accentbar" style="background:${pc}"></div>
+      <div class="chead">
+        <span class="nth">${partName(part)} 운동 #${nth}</span>
+        <span class="cdate" style="font-size:13.5px;font-weight:700;color:var(--tx2)">${f.m}/${f.d}</span>
+        <span class="cdow">${f.dow}</span>
+        <span class="cnum">운동 ${s.exercises.length}개 · 팁 ${tipCount}개</span>
+      </div>
+      ${rows}
+      ${s.memo?`<div class="memoline">${esc(s.memo)}</div>`:""}
+    </div>`;
+  }).join("");
 }
 
 /* =========================================================
@@ -972,17 +1010,21 @@ function delNote(id, exk){
   toast("삭제했습니다");
 }
 
-/* 부위 × 날짜 시트 ("다리 운동 #3") */
-function openPartDay(part, sid){
+/* 운동 세트 시트 — 이 화면을 보면서 그대로 따라 하면 된다 */
+function openRoutine(sid){
   const s = DB.sessions.find(x=>x.id===sid);
   if(!s) return;
-  const all = partSessions(part);
-  const nth = (all.find(o=>o.s.id===sid)||{}).nth || "";
-  const exs = s.exercises.filter(e=>partOf(e)===part);
+  const idx = routineIndex();
+  const {part, nth} = idx[sid];
   const f = fmtDate(s.date);
   const pc = partColor(part);
 
-  const body = exs.map((e,i)=>{
+  const chips = PARTS.map(p=>
+    `<button class="pp ${part===p.k?"on":""}" style="--pc:${p.c}" onclick="setRoutinePart('${sid}','${p.k}')">${p.n}</button>`
+  ).join("");
+
+  const body = s.exercises.map((e,i)=>{
+    const epc = partColor(partOf(e));
     const cues = e.cues.length ? `<ul class="cuelist">${e.cues.map(c=>`<li>${esc(c)}</li>`).join("")}</ul>` : "";
     const mx = maxW(e)||0;
     const rows = e.sets.map((st,j)=>`<div class="setrow">
@@ -991,31 +1033,47 @@ function openPartDay(part, sid){
         <span class="rp">${st.r!=null? st.r+"회":""}</span>
         <span class="bar2" style="width:${mx?Math.max(6,Math.round((st.w||0)/mx*72)):6}px"></span>
       </div>`).join("");
-    return `<div class="dex" style="--pc:${pc}">
-      <h3><span class="n" style="background:${pc}">${i+1}</span>${esc(e.name)}</h3>
+    const vid = e.video ? `<div class="videowrap">
+        ${canEmbed(e.video)
+          ? `<button class="vidbtn" style="background:color-mix(in srgb,${epc} 14%,transparent);color:${epc}" onclick="playHere(this,'${encodeURIComponent(e.video)}')">▶︎ 자세 영상 재생</button>`
+          : `<a class="vidbtn" style="background:color-mix(in srgb,${epc} 14%,transparent);color:${epc}" href="${esc(e.video)}" target="_blank" rel="noopener">🎬 자세 영상 열기</a>`}
+        <div class="playslot"></div>
+      </div>` : "";
+    return `<div class="dex" style="--pc:${epc}">
+      <h3><span class="n" style="background:${epc}">${i+1}</span>${esc(e.name)}</h3>
       ${cues}
       ${rows?`<div class="settable">${rows}</div>`:""}
-      <div class="volume"><span>탭해서 이 종목의 팁 전체 보기 →</span></div>
-      <button class="btn sm full" style="margin-top:9px" onclick="closeSheet();openExercise('${normName(e.name)}')">🎓 ${esc(e.name)} 팁 모아보기</button>
+      ${vid}
+      <button class="btn sm full" style="margin-top:10px" onclick="closeSheet();openExercise('${normName(e.name)}')">🎓 이 종목 팁 전체 보기</button>
     </div>`;
   }).join("");
+
+  const tipCount = s.exercises.reduce((a,e)=>a+e.cues.length,0);
 
   $("#sheetHost").innerHTML = `<div class="sheet" style="--pc:${pc}">
     <div class="sheetbar">
       <button class="iconbtn" onclick="closeSheet()">✕</button>
       <span class="ttl">${partName(part)} 운동 #${nth}</span>
-      <button class="iconbtn" style="margin-left:auto" onclick="closeSheet();openSession('${s.id}')" title="이 날 전체">📒</button>
+      <button class="iconbtn" style="margin-left:auto" onclick="editSession('${s.id}')">✎</button>
+      <button class="iconbtn" onclick="delSession('${s.id}')">🗑</button>
     </div>
     <div class="sheetbody">
       <div class="hero">
         <h2>${partName(part)} 운동 #${nth}</h2>
-        <div class="row"><span class="mini">${f.y}년 ${f.m}월 ${f.d}일 (${f.dow}) · 종목 ${exs.length}개</span></div>
+        <div class="row"><span class="mini">${f.y}년 ${f.m}월 ${f.d}일 (${f.dow}) · 운동 ${s.exercises.length}개 · 팁 ${tipCount}개</span></div>
       </div>
+      <div class="partpick">${chips}</div>
+      <div class="hint" style="margin:-2px 0 14px">이 세트를 어느 부위로 분류할지 정합니다.</div>
       ${s.memo?`<div class="prevbox" style="margin:0 0 13px">📝 ${esc(s.memo)}</div>`:""}
       ${body}
     </div>
   </div>`;
   document.body.style.overflow = "hidden";
+}
+function setRoutinePart(sid, pk){
+  DB.sparts[sid] = pk; save();
+  openRoutine(sid); renderTips(); renderLog();
+  toast(partName(pk)+" 세트로 옮겼어요");
 }
 
 /* =========================================================
@@ -1056,6 +1114,7 @@ function renderLog(){
          <button class="btn primary" style="margin-top:14px" onclick="go('add')">첫 운동 기록하기</button></div>`;
     return;
   }
+  const idx = routineIndex();
   let html = "", lastYM = "";
   list.forEach(s=>{
     const ym = s.date.slice(0,7);
@@ -1065,8 +1124,8 @@ function renderLog(){
       html += `<div class="seclabel">${y}년 ${+m}월 · ${list.filter(x=>x.date.slice(0,7)===ym).length}회</div>`;
     }
     const f = fmtDate(s.date);
-    const parts = [...new Set(s.exercises.map(partOf))];
-    const ptags = parts.map(p=>`<span class="ptag" style="--pc:${partColor(p)}">${partName(p)}</span>`).join(" ");
+    const r = idx[s.id];
+    const ptags = `<span class="nth" style="--pc:${partColor(r.part)}">${partName(r.part)} 운동 #${r.nth}</span>`;
     const rows = s.exercises.slice(0,5).map((e,i)=>`
       <div class="exline">
         <span class="ix" style="background:color-mix(in srgb,${partColor(partOf(e))} 16%,transparent);color:${partColor(partOf(e))}">${i+1}</span>
@@ -1077,7 +1136,7 @@ function renderLog(){
     const more = s.exercises.length>5
       ? `<div class="exline"><span class="ix" style="background:none;color:var(--tx3)">＋</span><span class="nm" style="color:var(--tx3);font-weight:500">외 ${s.exercises.length-5}개</span></div>` : "";
     html += `<div class="card" onclick="openSession('${s.id}')">
-      <div class="accentbar"></div>
+      <div class="accentbar" style="background:${partColor(r.part)}"></div>
       <div class="chead">
         <span class="cdate">${f.m}월 ${f.d}일</span>
         <span class="cdow">${f.dow}</span>
@@ -1162,8 +1221,9 @@ function openSession(id){
 }
 function closeSheet(){ $("#sheetHost").innerHTML=""; document.body.style.overflow=""; }
 function delSession(id){
-  if(!confirm("이 날짜 기록을 삭제할까요?")) return;
+  if(!confirm("이 세트를 삭제할까요?")) return;
   DB.sessions = DB.sessions.filter(s=>s.id!==id);
+  delete DB.sparts[id];
   save(); closeSheet(); renderLog(); renderTips(); toast("삭제했습니다");
 }
 function editSession(id){
@@ -1296,8 +1356,9 @@ $("#impFile").onchange = ev=>{
         if(have.has(s.id) || keys.has(k)) return;
         DB.sessions.push({...s, id:s.id||uid()}); n++;
       });
-      Object.assign(DB.parts, inc.parts||{});
-      Object.assign(DB.stars, inc.stars||{});
+      Object.assign(DB.parts,  inc.parts||{});
+      Object.assign(DB.sparts, inc.sparts||{});
+      Object.assign(DB.stars,  inc.stars||{});
       const noteIds = new Set(DB.notes.map(x=>x.id));
       (inc.notes||[]).forEach(x=>{ if(!noteIds.has(x.id)) DB.notes.push(x); });
       DB = migrate(DB); save();
@@ -1311,7 +1372,7 @@ $("#impFile").onchange = ev=>{
 $("#wipeBtn").onclick = ()=>{
   if(!confirm("모든 팁과 기록이 지워집니다. 백업은 받으셨나요?")) return;
   if(!confirm("정말 전부 삭제할까요?")) return;
-  DB = {version:2, sessions:[], parts:{}, stars:{}, notes:[]}; save();
+  DB = {version:2, sessions:[], parts:{}, sparts:{}, stars:{}, notes:[]}; save();
   renderLog(); renderTips(); renderDataInfo(); toast("전체 삭제했습니다");
 };
 function renderDataInfo(){
