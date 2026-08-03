@@ -381,6 +381,12 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
       <p style="margin:8px 0 0;color:var(--tx3)">아이클라우드 “링크 복사”는 30일 뒤 만료되니 오래 보관할 영상에는 쓰지 마세요.</p>
     </div>
     <div class="setblk">
+      <h4>버전</h4>
+      <p id="verInfo"></p>
+      <button class="btn full" id="reloadBtn">↻ 최신 버전 받기</button>
+      <p style="margin:11px 0 0;color:var(--tx3)">앱이 업데이트돼도 저장된 팁·기록은 그대로 유지됩니다. 반영이 안 된 것 같으면 이 버튼을 누르세요.</p>
+    </div>
+    <div class="setblk">
       <h4>데이터</h4>
       <p id="dataInfo"></p>
       <button class="btn danger full" id="wipeBtn">전체 기록 삭제</button>
@@ -404,6 +410,8 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
    스낵PT — 부위별 PT 팁 아카이브
    ========================================================= */
 const KEY = "snackpt.v1", THEME_KEY = "snackpt.theme";
+const APP_VERSION = "1.2";           // 배포할 때마다 올린다
+const APP_BUILT   = "2026-08-03";
 
 /* ---------- 운동 부위 ---------- */
 const PARTS = [
@@ -1311,7 +1319,10 @@ function renderDataInfo(){
   const ex = DB.sessions.reduce((a,s)=>a+s.exercises.length,0);
   let tips = 0; DB.sessions.forEach(s=>s.exercises.forEach(e=>tips+=e.cues.length));
   $("#dataInfo").innerHTML = `기록 <b>${DB.sessions.length}일</b> · 운동 <b>${ex}개</b> · 팁 <b>${tips+DB.notes.length}개</b> · 약 ${(bytes/1024).toFixed(1)}KB`;
+  $("#verInfo").innerHTML = `지금 이 폰에서 실행 중인 버전 <b>v${APP_VERSION}</b> (${APP_BUILT})`;
 }
+/* 캐시를 건너뛰고 새로 받는다 (주소가 달라지면 브라우저가 다시 내려받음) */
+$("#reloadBtn").onclick = ()=> location.replace(location.pathname + "?v=" + Date.now());
 
 /* =========================================================
    내비게이션 · 테마
