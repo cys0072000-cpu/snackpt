@@ -422,7 +422,7 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
    스낵PT — 부위별 PT 팁 아카이브
    ========================================================= */
 const KEY = "snackpt.v1", THEME_KEY = "snackpt.theme";
-const APP_VERSION = "1.5";           // 배포할 때마다 올린다
+const APP_VERSION = "1.6";           // 배포할 때마다 올린다
 const APP_BUILT   = "2026-08-03";
 
 /* ---------- 운동 부위 ---------- */
@@ -711,7 +711,7 @@ function historyHtml(exName, curSid){
       ? r.ex.sets.map((st,j)=>
           `<div class="histset"><span class="sn">${j+1}세트</span><span class="sv">${setLabel(st)}</span></div>`).join("")
       : `<div class="histset"><span class="sn"></span><span class="sv" style="color:var(--tx3)">세트 기록 없음</span></div>`;
-    return `<div class="histgrp${cur?" cur":""}" onclick="closeSheet();openRoutine('${r.sid}')">
+    return `<div class="histgrp${cur?" cur":""}" onclick="openRoutine('${r.sid}')">
       <div class="histhead">
         <span class="d">${f.m}/${f.d}</span>
         <span class="dow">${f.dow}</span>
@@ -952,7 +952,7 @@ function renderRoutines(q){
 /* =========================================================
    종목 상세 시트 — PT 선생님이 알려준 것 전부
    ========================================================= */
-function openExercise(exk){
+function renderExerciseSheet(exk){
   const o = buildExercise(exk);
   if(!o) return;
   const pc = partColor(o.part);
@@ -992,7 +992,7 @@ function openExercise(exk){
 
   $("#sheetHost").innerHTML = `<div class="sheet" style="--pc:${pc}">
     <div class="sheetbar">
-      <button class="iconbtn" onclick="closeSheet()">✕</button>
+      ${navBtn()}
       <span class="ttl">${esc(o.name)}</span>
     </div>
     <div class="sheetbody">
@@ -1057,7 +1057,7 @@ function delNote(id, exk){
 }
 
 /* 운동 세트 시트 — 이 화면을 보면서 그대로 따라 하면 된다 */
-function openRoutine(sid){
+function renderRoutineSheet(sid){
   const s = DB.sessions.find(x=>x.id===sid);
   if(!s) return;
   const idx = routineIndex();
@@ -1096,7 +1096,7 @@ function openRoutine(sid){
       ${rows?`<div class="settable">${rows}</div>`:""}
       ${hist}
       ${vid}
-      <button class="btn sm full" style="margin-top:10px" onclick="closeSheet();openExercise('${normName(e.name)}')">🎓 이 종목 팁 전체 보기</button>
+      <button class="btn sm full" style="margin-top:10px" onclick="openExercise('${normName(e.name)}')">🎓 이 종목 팁 전체 보기</button>
     </div>`;
   }).join("");
 
@@ -1104,7 +1104,7 @@ function openRoutine(sid){
 
   $("#sheetHost").innerHTML = `<div class="sheet" style="--pc:${pc}">
     <div class="sheetbar">
-      <button class="iconbtn" onclick="closeSheet()">✕</button>
+      ${navBtn()}
       <span class="ttl">${partName(part)} 운동 #${nth}</span>
       <button class="iconbtn" style="margin-left:auto" onclick="editSession('${s.id}')">✎</button>
       <button class="iconbtn" onclick="delSession('${s.id}')">🗑</button>
@@ -1206,7 +1206,7 @@ function historyBefore(name, date){
   return DB.sessions.filter(s=>s.date<date && s.exercises.some(e=>normName(e.name)===nn))
     .sort((a,b)=>b.date.localeCompare(a.date));
 }
-function openSession(id){
+function renderSessionSheet(id){
   const s = DB.sessions.find(x=>x.id===id);
   if(!s) return;
   const f = fmtDate(s.date);
@@ -1252,13 +1252,13 @@ function openSession(id){
       ${meta.length?`<div class="volume">${meta.map(m=>`<span>${esc(m)}</span>`).join("")}</div>`:""}
       ${prevBox}
       ${vid}
-      <button class="btn sm full" style="margin-top:10px" onclick="closeSheet();openExercise('${normName(e.name)}')">🎓 이 종목 팁 모아보기</button>
+      <button class="btn sm full" style="margin-top:10px" onclick="openExercise('${normName(e.name)}')">🎓 이 종목 팁 모아보기</button>
     </div>`;
   }).join("");
 
   $("#sheetHost").innerHTML = `<div class="sheet">
     <div class="sheetbar">
-      <button class="iconbtn" onclick="closeSheet()">✕</button>
+      ${navBtn()}
       <span class="ttl">${f.y}. ${f.m}. ${f.d} (${f.dow})</span>
       <button class="iconbtn" style="margin-left:auto" onclick="editSession('${s.id}')">✎</button>
       <button class="iconbtn" onclick="delSession('${s.id}')">🗑</button>
@@ -1271,7 +1271,115 @@ function openSession(id){
   </div>`;
   document.body.style.overflow = "hidden";
 }
-function closeSheet(){ $("#sheetHost").innerHTML=""; document.body.style.overflow=""; }
+/* =========================================================
+   시트 내비게이션 — 뒤로가기 스택
+   세트 → 종목 → 다른 세트… 로 파고들어도 한 단계씩 되돌아온다.
+   왼쪽 끝 스와이프와 안드로이드 뒤로가기 버튼이 같은 동작을 한다.
+   ========================================================= */
+let navStack = [];
+let histOk = true;                 // history API를 못 쓰는 환경 대비
+try{ history.replaceState(history.state||{}, ""); }catch(e){ histOk = false; }
+
+function renderTop(){
+  const v = navStack[navStack.length-1];
+  if(!v) return clearSheet();
+  if(v.t==="routine")  renderRoutineSheet(v.id);
+  else if(v.t==="exercise") renderExerciseSheet(v.id);
+  else if(v.t==="session")  renderSessionSheet(v.id);
+}
+function pushView(v){
+  const top = navStack[navStack.length-1];
+  if(top && top.t===v.t && top.id===v.id){ renderTop(); return; }   // 같은 화면이면 쌓지 않는다
+  navStack.push(v);
+  /* 스택 길이와 history 항목 수를 반드시 1:1로 맞춘다 (닫을 때 정확히 되감기 위해) */
+  if(histOk){ try{ history.pushState({sp:navStack.length}, ""); }catch(e){ histOk = false; } }
+  renderTop();
+}
+function refreshTop(){ renderTop(); }                 // 스택은 그대로 두고 다시 그리기
+/* 파고든 상태면 뒤로(‹), 첫 화면이면 닫기(✕) */
+function navBtn(){
+  return navStack.length > 1
+    ? `<button class="iconbtn" onclick="navBack()" title="뒤로" style="font-size:19px;line-height:1">‹</button>`
+    : `<button class="iconbtn" onclick="closeSheet()" title="닫기">✕</button>`;
+}
+
+function openRoutine(id){  pushView({t:"routine",  id}); }
+function openExercise(id){ pushView({t:"exercise", id}); }
+function openSession(id){  pushView({t:"session",  id}); }
+
+function clearSheet(){ $("#sheetHost").innerHTML=""; document.body.style.overflow=""; }
+/* ✕ 버튼 — 몇 단계를 팠든 한 번에 닫는다 */
+function closeSheet(){
+  const n = navStack.length;
+  navStack = [];
+  clearSheet();
+  if(n && histOk) history.go(-n);
+}
+/* 한 단계 뒤로 (스와이프·시스템 뒤로가기) */
+function navBack(){
+  if(!navStack.length) return false;
+  if(histOk) history.back();
+  else { navStack.pop(); navStack.length ? renderTop() : clearSheet(); }
+  return true;
+}
+window.addEventListener("popstate", ()=>{
+  if(!navStack.length){ clearSheet(); return; }
+  navStack.pop();
+  if(navStack.length) renderTop(); else clearSheet();
+});
+
+/* ---------- 왼쪽 끝에서 오른쪽으로 스와이프 = 뒤로가기 ---------- */
+(function(){
+  const EDGE = 28;      // 왼쪽 끝 감지 폭(px)
+  const THRESH = 68;    // 이만큼 끌면 뒤로가기 확정
+  let sx=0, sy=0, dx=0, sheet=null, tracking=false, decided=false, horizontal=false;
+
+  const reset = s=>{ if(s){ s.style.transition=""; s.style.transform=""; s.style.boxShadow=""; } };
+
+  document.addEventListener("touchstart", e=>{
+    if(e.touches.length!==1 || !navStack.length) return;
+    const t = e.touches[0];
+    if(t.clientX > EDGE) return;
+    sheet = document.querySelector(".sheet");
+    if(!sheet) return;
+    sx = t.clientX; sy = t.clientY; dx = 0;
+    tracking = true; decided = false; horizontal = false;
+    sheet.style.transition = "none";
+  }, {passive:true});
+
+  document.addEventListener("touchmove", e=>{
+    if(!tracking) return;
+    const t = e.touches[0];
+    const ddx = t.clientX - sx, ddy = t.clientY - sy;
+    if(!decided){
+      if(Math.abs(ddx) < 8 && Math.abs(ddy) < 8) return;
+      decided = true;
+      horizontal = Math.abs(ddx) > Math.abs(ddy);
+      if(!horizontal){ tracking = false; reset(sheet); sheet = null; return; }
+    }
+    dx = Math.max(0, ddx);
+    sheet.style.transform = `translateX(${dx}px)`;
+    sheet.style.boxShadow = "-14px 0 30px rgba(0,0,0,.32)";
+    if(e.cancelable) e.preventDefault();          // 세로 스크롤과 섞이지 않게
+  }, {passive:false});
+
+  const finish = ()=>{
+    if(!tracking) return;
+    tracking = false;
+    const s = sheet; sheet = null;
+    if(!s) return;
+    s.style.transition = "transform .2s cubic-bezier(.2,.8,.2,1)";
+    if(dx > THRESH){
+      s.style.transform = "translateX(100%)";
+      setTimeout(navBack, 170);
+    } else {
+      s.style.transform = "";
+      setTimeout(()=>reset(s), 220);
+    }
+  };
+  document.addEventListener("touchend", finish, {passive:true});
+  document.addEventListener("touchcancel", finish, {passive:true});
+})();
 function delSession(id){
   if(!confirm("이 세트를 삭제할까요?")) return;
   DB.sessions = DB.sessions.filter(s=>s.id!==id);
@@ -1458,7 +1566,7 @@ function applyTheme(t){
 }
 $("#themeBtn").onclick = ()=> applyTheme(document.documentElement.dataset.theme==="light"?"dark":"light");
 applyTheme(localStorage.getItem(THEME_KEY) || (matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"));
-document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeSheet(); });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") navBack(); });
 
 /* 시작 */
 $("#aDate").value = todayStr();
