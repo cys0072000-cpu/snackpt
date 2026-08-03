@@ -422,7 +422,7 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
    스낵PT — 부위별 PT 팁 아카이브
    ========================================================= */
 const KEY = "snackpt.v1", THEME_KEY = "snackpt.theme";
-const APP_VERSION = "1.6";           // 배포할 때마다 올린다
+const APP_VERSION = "1.7";           // 배포할 때마다 올린다
 const APP_BUILT   = "2026-08-03";
 
 /* ---------- 운동 부위 ---------- */
@@ -816,6 +816,18 @@ function library(){
 let curPart = "all";
 let curMode = "set";           // 기본은 세트(붙여넣은 메시지 단위)
 
+/* 목록은 한 번에 다 그리지 않는다.
+   몇 년 쌓여도 DOM 노드 수가 일정하게 유지되도록 끊어서 그린다. */
+const PAGE = 60;
+let tipsLimit = PAGE, logLimit = PAGE;
+function moreBtn(rest, which){
+  return `<button class="btn full ghost" style="margin-top:4px" onclick="showMore('${which}')">＋ ${rest}개 더 보기</button>`;
+}
+function showMore(which){
+  if(which==="tips"){ tipsLimit += PAGE; renderTips(); }
+  else { logLimit += PAGE; renderLog(); }
+}
+
 function renderChips(){
   /* 세트 모드에선 세트 개수를, 종목 모드에선 종목 개수를 센다 */
   const counts = {};
@@ -840,16 +852,17 @@ function renderChips(){
   $("#partChips").innerHTML = html;
 }
 function setPart(k){
-  curPart = k;
+  curPart = k; tipsLimit = PAGE;
   renderChips(); renderTips();
   window.scrollTo({top:0,behavior:"smooth"});
 }
 $$("#modeSeg button").forEach(b=> b.onclick = ()=>{
-  curMode = b.dataset.m;
+  curMode = b.dataset.m; tipsLimit = PAGE;
   $$("#modeSeg button").forEach(x=>x.classList.toggle("on", x===b));
   renderTips();
 });
-$("#tq").oninput = renderTips;
+let tqTimer;
+$("#tq").oninput = ()=>{ tipsLimit = PAGE; clearTimeout(tqTimer); tqTimer = setTimeout(renderTips, 120); };
 
 function renderTips(){
   renderChips();
@@ -878,6 +891,8 @@ function renderTips(){
   const totalTips = lib.reduce((a,o)=>a+o.tips.length,0);
   let html = `<div class="seclabel">${curPart==="all"?"전체":partName(curPart)} · 종목 ${lib.length}개 · 팁 ${totalTips}개</div>`;
 
+  const totalEx = lib.length;
+  lib = lib.slice(0, tipsLimit);
   html += lib.map(o=>{
     const show = o.tips.slice(0,3);
     const tips = show.map(t=>`
@@ -898,6 +913,7 @@ function renderTips(){
       ${more}
     </div>`;
   }).join("");
+  if(totalEx > tipsLimit) html += moreBtn(totalEx - tipsLimit, "tips");
   host.innerHTML = html;
 }
 
@@ -923,6 +939,8 @@ function renderRoutines(q){
     ? `전체 ${list.length}세트 · 최근순`
     : `${partName(curPart)} 운동 ${list.length}세트 · 오늘 할 걸 고르세요`;
 
+  const total = list.length;
+  list = list.slice(0, tipsLimit);
   host.innerHTML = `<div class="seclabel">${label}</div>` + list.map(s=>{
     const {part, nth} = idx[s.id];
     const pc = partColor(part);
@@ -946,7 +964,7 @@ function renderRoutines(q){
       ${rows}
       ${s.memo?`<div class="memoline">${esc(s.memo)}</div>`:""}
     </div>`;
-  }).join("");
+  }).join("") + (total > tipsLimit ? moreBtn(total - tipsLimit, "tips") : "");
 }
 
 /* =========================================================
@@ -1167,13 +1185,17 @@ function renderLog(){
     return;
   }
   const idx = routineIndex();
+  const totalLog = list.length;
+  const monthTotal = {};
+  list.forEach(s=>{ const k = s.date.slice(0,7); monthTotal[k] = (monthTotal[k]||0)+1; });
+  list = list.slice(0, logLimit);
   let html = "", lastYM = "";
   list.forEach(s=>{
     const ym = s.date.slice(0,7);
     if(ym!==lastYM){
       lastYM = ym;
       const [y,m] = ym.split("-");
-      html += `<div class="seclabel">${y}년 ${+m}월 · ${list.filter(x=>x.date.slice(0,7)===ym).length}회</div>`;
+      html += `<div class="seclabel">${y}년 ${+m}월 · ${monthTotal[ym]}회</div>`;
     }
     const f = fmtDate(s.date);
     const r = idx[s.id];
@@ -1198,6 +1220,7 @@ function renderLog(){
       ${s.memo?`<div class="memoline">${esc(s.memo)}</div>`:""}
     </div>`;
   });
+  if(totalLog > logLimit) html += moreBtn(totalLog - logLimit, "log");
   host.innerHTML = html;
 }
 
@@ -1557,7 +1580,8 @@ function go(v){
   if(v==="set") renderDataInfo();
 }
 $$(".tab").forEach(t=> t.onclick = ()=>{ go(t.dataset.v); window.scrollTo({top:0,behavior:"smooth"}); });
-$("#q").oninput = renderLog;
+let qTimer;
+$("#q").oninput = ()=>{ logLimit = PAGE; clearTimeout(qTimer); qTimer = setTimeout(renderLog, 120); };
 
 function applyTheme(t){
   document.documentElement.dataset.theme = t;
