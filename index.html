@@ -427,7 +427,7 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
    스낵PT — 부위별 PT 팁 아카이브
    ========================================================= */
 const KEY = "snackpt.v1", THEME_KEY = "snackpt.theme";
-const APP_VERSION = "1.8";           // 배포할 때마다 올린다
+const APP_VERSION = "1.9";           // 배포할 때마다 올린다
 const APP_BUILT   = "2026-08-05";
 
 /* ---------- 운동 부위 ---------- */
@@ -1596,6 +1596,16 @@ function applyTheme(t){
 $("#themeBtn").onclick = ()=> applyTheme(document.documentElement.dataset.theme==="light"?"dark":"light");
 applyTheme(localStorage.getItem(THEME_KEY) || (matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"));
 document.addEventListener("keydown", e=>{ if(e.key==="Escape") navBack(); });
+
+/* 오프라인에서도 앱이 열리도록 서비스 워커 등록.
+   신호가 약한 헬스장에서도 최소한 마지막으로 받아둔 화면은 뜬다. */
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
+}
+window.addEventListener("offline", ()=> toast("오프라인 — 마지막으로 받아둔 화면이에요"));
+if(!navigator.onLine) setTimeout(()=> toast("오프라인 — 마지막으로 받아둔 화면이에요"), 300);
 
 /* 시작 */
 $("#aDate").value = todayStr();

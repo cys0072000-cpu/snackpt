@@ -1,0 +1,945 @@
+{
+  "version": 2,
+  "sessions": [
+    {
+      "id": "smscn4fzp70ve2",
+      "date": "2026-07-04",
+      "memo": "",
+      "exercises": [
+        {
+          "name": "개구리스쿼트",
+          "part": "leg",
+          "cues": [
+            "앞꿈치에 손 대주면서, 뒷꿈치 누르면서 엉덩이 들어준 뒤, 앉아주기 반복"
+          ],
+          "sets": [
+            {
+              "raw": "10번씩"
+            }
+          ],
+          "declared": 2,
+          "rawSets": "10번씩 2set",
+          "video": "https://drive.google.com/file/d/1-Nvpl8p3XPUg0gedGAFv_5WTXJLTkdt-/view?usp=drivesdk"
+        },
+        {
+          "name": "이너타이",
+          "part": "etc",
+          "cues": [
+            "손잡이 꽉 잡고 허벅지 안쪽으로 모아주기"
+          ],
+          "sets": [
+            {
+              "raw": "25kg x 15 30kg x 15"
+            }
+          ],
+          "declared": 2,
+          "rawSets": "25kg x 15 30kg x 15 2set",
+          "video": "https://drive.google.com/file/d/15n8ZsXvRFGVqhq3xipCFFBDBrUsKMSIS/view?usp=drivesdk"
+        },
+        {
+          "name": "아웃타이",
+          "part": "etc",
+          "cues": [],
+          "sets": [
+            {
+              "w": 30,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 30,
+              "u": "kg",
+              "r": 15
+            }
+          ],
+          "declared": 2,
+          "rawSets": "30kg x 15, 15 2set",
+          "video": "https://drive.google.com/file/d/1IEX9HTdgTa4XgPsHal-zYFI_57zTrB_u/view?usp=drivesdk"
+        },
+        {
+          "name": "익스텐션",
+          "part": "etc",
+          "cues": [
+            "기존에 하는 방법이아니라, 손잡이 강하게 당겨주면서 무릎을 위로 들면서 다리를 펴주세요!",
+            "대퇴직근에 자극을 먼저 받고 해야 됩니다!"
+          ],
+          "sets": [
+            {
+              "w": 25,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 25,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 25,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 25,
+              "u": "kg",
+              "r": 15
+            }
+          ],
+          "declared": 4,
+          "rawSets": "25kg x15, 15, 15, 15 4set",
+          "video": "https://drive.google.com/file/d/1RQNuan4SFWdXS6YnSHex3GwfPpqe_ev_/view?usp=drivesdk"
+        },
+        {
+          "name": "v스쿼트",
+          "part": "leg",
+          "cues": [
+            "자세 너무 좋아서 그대로 진행 하시면 되요!"
+          ],
+          "sets": [
+            {
+              "w": 20,
+              "u": "kg",
+              "r": 12
+            },
+            {
+              "w": 40,
+              "u": "kg",
+              "r": 12
+            },
+            {
+              "w": 60,
+              "u": "kg",
+              "r": 12
+            }
+          ],
+          "declared": 3,
+          "rawSets": "20kg x 12, 40kg x 12, 60kg x 12 3set",
+          "video": "https://drive.google.com/file/d/1TI8RFPiJm_YWJUzsKUJPTnSd2TXSG6UT/view?usp=drivesdk"
+        },
+        {
+          "name": "레그프레스",
+          "part": "leg",
+          "cues": [
+            "등받이는 제일 높게 해놓은 뒤, 밀고 내려오는게 1개에요!"
+          ],
+          "sets": [
+            {
+              "raw": "한쪽에 40kg x 15"
+            },
+            {
+              "w": 60,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 60,
+              "u": "kg",
+              "r": 15
+            }
+          ],
+          "declared": 3,
+          "rawSets": "한쪽에 40kg x 15, 60kg x 15, 15 3set",
+          "video": "https://drive.google.com/file/d/1tW3ioA8nJrrt2gvAnb-EnqrTakkRSpe7/view?usp=drivesdk"
+        }
+      ],
+      "createdAt": 1785725948149
+    },
+    {
+      "id": "smsco1qur6hcrx",
+      "date": "2026-07-13",
+      "memo": "",
+      "exercises": [
+        {
+          "name": "이두 머신",
+          "part": "shoulder",
+          "cues": [
+            "의자는 적당한 높이",
+            "팔꿈치로 패드 누르면서 이두 강하게 접어주기",
+            "늘릴때는 고개들고 팔만 길게 늘려주기",
+            "(이두에서 힘을 다 빼지는 않아요!)"
+          ],
+          "sets": [
+            {
+              "w": 30,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 40,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 40,
+              "u": "kg",
+              "r": 15
+            }
+          ],
+          "declared": 3,
+          "rawSets": "30 x 15, 40 x 15, 15 3set",
+          "video": "https://drive.google.com/file/d/1rbfhsy1l65WWIteNhjedLnH-9N9Sw10M/view?usp=drivesdk"
+        },
+        {
+          "name": "머리 위로 플라이",
+          "part": "shoulder",
+          "cues": [
+            "덤벨을 11자로 잡아준 뒤, 옆으로 길게 늘려주기",
+            "늘릴때는 목이 길어지는 느낌으로 벌려주기",
+            "모을때는 이두로 어깨를 넣어준다는 느낌으로 모아주기"
+          ],
+          "sets": [
+            {
+              "w": 3,
+              "u": "kg",
+              "r": 12
+            },
+            {
+              "w": 3,
+              "u": "kg",
+              "r": 12
+            },
+            {
+              "w": 3,
+              "u": "kg",
+              "r": 12
+            }
+          ],
+          "declared": 3,
+          "rawSets": "3kg x 12, 12, 12 3set",
+          "video": "https://drive.google.com/file/d/1isGPqCb9Y5_zsuPg-ikHuuVnfsEZgAg3/view?usp=drivesdk"
+        },
+        {
+          "name": "오버헤드 프레스 머신",
+          "part": "shoulder",
+          "cues": [
+            "손잡이 넓이는 어깨 넓이 11자로 잡아주기",
+            "꽉 잡고 머리 위로 만세",
+            "배에 힘주면서 위로 밀어주세요!",
+            "허리 꺾이지 않게, 팔꿈치는 수직"
+          ],
+          "sets": [
+            {
+              "w": 30,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 40,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 50,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 60,
+              "u": "kg",
+              "r": 12
+            }
+          ],
+          "declared": 4,
+          "rawSets": "30 x 15, 40 x 15, 50 x 15, 60 x 12 4set",
+          "video": "https://drive.google.com/file/d/1fWWaaokgLV0PuGKsP9Hh9sTw1boYUmPE/view?usp=drivesdk"
+        },
+        {
+          "name": "사이드 레트럴 레이즈",
+          "part": "shoulder",
+          "cues": [
+            "차렷자세에서 호흡 마신 후, 앞으로 숙이기",
+            "꽉 잡은 뒤, 팔꿈치로 팔을 옆으로 멀리 던져주기",
+            "가슴이 절대 말리면 안되고, 살짝 으쓱해놔야합니다!"
+          ],
+          "sets": [
+            {
+              "w": 3,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 5,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 5,
+              "u": "kg",
+              "r": 15
+            }
+          ],
+          "declared": 3,
+          "rawSets": "3kg x 15, 5kg x 15, 15, 3set",
+          "video": "https://drive.google.com/file/d/1F3OhuUEIB3hzkOUHRb4Vx8hDvh7kODSk/view?usp=drivesdk"
+        },
+        {
+          "name": "케이블 크로스 오버",
+          "part": "shoulder",
+          "cues": [
+            "케이블 높이는 숫자 2",
+            "서로 양끝 잡아준 뒤, 꽉 잡고 눈높이 위에서 늘려주고 버티면서 돌아가기",
+            "무게중심은 살짝 뒷꿈치에!"
+          ],
+          "sets": [
+            {
+              "w": 5,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 5,
+              "u": "kg",
+              "r": 12
+            },
+            {
+              "w": 5,
+              "u": "kg",
+              "r": 12
+            }
+          ],
+          "declared": 3,
+          "rawSets": "5kg x 15, 12, 12 3set",
+          "video": "https://drive.google.com/file/d/1BBW7qYog19QWAdEegU4PFGB0znLtAcJI/view?usp=drivesdk"
+        }
+      ],
+      "createdAt": 1785727501875
+    },
+    {
+      "id": "smscz1fzc3p67x",
+      "date": "2026-07-16",
+      "memo": "",
+      "exercises": [
+        {
+          "name": "암풀다운",
+          "part": "back",
+          "cues": [
+            "그립 꽉 잡고, 손등과 눈높이가 오게끔 만들어준 뒤 앞으로 숙여주기",
+            "발바닥, 배에 힘주면서 그립 345손바닥 쪽으로 강하게 당겨주기",
+            "늘릴때는 팔만 길게 늘려주기",
+            "팔 접지 않기!"
+          ],
+          "sets": [
+            {
+              "w": 25,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 35,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 40,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 40,
+              "u": "kg",
+              "r": 12
+            }
+          ],
+          "declared": 4,
+          "rawSets": "25kg x 15, 35kg x 15, 40kg x 15, 12 4set",
+          "video": "https://drive.google.com/file/d/1fx2gEjpufl76PE-wLBtgTATL6b06WKYf/view?usp=drivesdk"
+        },
+        {
+          "name": "루마니안 데드리프트",
+          "part": "back",
+          "cues": [
+            "바벨은 어깨넓이 보다 조금만 넓게 잡아주기",
+            "꽉 잡고 호흡 마신 뒤, 무게중심 앞으로 해서 숙여준 뒤, 발바닥 강하게 밀면서 일어나기",
+            "­-날개뼈 강하게 모아주기"
+          ],
+          "sets": [
+            {
+              "w": 10,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 15,
+              "u": "kg",
+              "r": 12
+            },
+            {
+              "w": 20,
+              "u": "kg",
+              "r": 10
+            },
+            {
+              "w": 20,
+              "u": "kg",
+              "r": 10
+            }
+          ],
+          "declared": 4,
+          "rawSets": "10kg x 15, 15kg x 12, 20kg x 10, 10 4set",
+          "video": "https://drive.google.com/file/d/1v8uvL1s9ZpSJbtqAuC3LLMl7sZyRTpx_/view?usp=drivesdk"
+        },
+        {
+          "name": "바벨로우",
+          "part": "back",
+          "cues": [
+            "루마니안처럼 똑같이 내려간 뒤, 꽉 잡고 팔꿈치 바깥쪽으로 보낸다 생각하고 날개뼈 강하게 모아주기",
+            "등운동은 팔을 길게 써야 합니다!",
+            "밑으로 팔 길게 늘려주면서 발 누르면서 강하게 당겾귀"
+          ],
+          "sets": [
+            {
+              "w": 2.5,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 2.5,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 2.5,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 2.5,
+              "u": "kg",
+              "r": 15
+            }
+          ],
+          "declared": 4,
+          "rawSets": "2.5kg x 15, 15, 15, 15 4set",
+          "video": "https://drive.google.com/file/d/1xZQxa2gLMh6VCDCjb5CfP-zLQ_MfF-4C/view?usp=drivesdk"
+        }
+      ],
+      "createdAt": 1785745963560
+    },
+    {
+      "id": "smscz81fz7mwct",
+      "date": "2026-07-18",
+      "memo": "",
+      "exercises": [
+        {
+          "name": "플라이 머신",
+          "part": "chest",
+          "cues": [
+            "등받이는 숫자9",
+            "손잡이 꽉 잡고 앞으로 나란히 하듯이 모아주기",
+            "늘릴때는 등받이 밀면서 가슴이 늘어나는 느낌으로 벌리고 꽉 잡고 강하게 모아주기"
+          ],
+          "sets": [
+            {
+              "w": 25,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 35,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 45,
+              "u": "kg",
+              "r": 12
+            },
+            {
+              "w": 45,
+              "u": "kg",
+              "r": 12
+            }
+          ],
+          "declared": 4,
+          "rawSets": "25kg x 15, 35kg x 15, 45kg x 12, 12 4set",
+          "video": "https://drive.google.com/file/d/1-nXqjkGYgbqasXm4pqP8S3IVvhnAxfP-/view?usp=drivesdk"
+        },
+        {
+          "name": "인클라인 프레스 머신",
+          "part": "chest",
+          "cues": [
+            "의자는 제일 낮게 앉고, 손잡이 꽉 잡고 삼두의 힘으로 강하게 밀어주기",
+            "배에 힘주면서 123 손가락 꽉 잡기"
+          ],
+          "sets": [
+            {
+              "w": 20,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 30,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "raw": "40kg 12"
+            }
+          ],
+          "declared": 3,
+          "rawSets": "20kg x 15, 30kg x 15, 40kg 12, 3set",
+          "video": "https://drive.google.com/file/d/1rVEMxSUFMVULnOYMmsJx6Fm_9u57hn0V/view?usp=drivesdk"
+        },
+        {
+          "name": "스미스 머신 인클라인 프레스",
+          "part": "chest",
+          "cues": [
+            "등받이는 15도 정도 세우기",
+            "그립은 넓지 않게 잡아주고, 123 손가락 꽉 잡고 강하게 팔 피면서 밀어주기",
+            "팔꿈치는 옆으로 길게 보낸다는 느낌으로!"
+          ],
+          "sets": [
+            {
+              "w": 10,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 15,
+              "u": "kg",
+              "r": 12
+            },
+            {
+              "w": 15,
+              "u": "kg",
+              "r": 12
+            },
+            {
+              "w": 5,
+              "u": "kg",
+              "r": 7
+            },
+            {
+              "w": 5,
+              "u": "kg",
+              "r": 7
+            },
+            {
+              "w": 5,
+              "u": "kg",
+              "r": 7
+            }
+          ],
+          "declared": 4,
+          "rawSets": "10kg x 15, 15kg x 12, 12, 5kg x 7,7,7 4set",
+          "video": "https://drive.google.com/file/d/19Z329xMTQMTYuuUsjoW3uiNdchfcJ5W_/view?usp=drivesdk"
+        },
+        {
+          "name": "듀얼플라이 머신",
+          "part": "chest",
+          "cues": [
+            "사이드 자세처럼 만들어준 뒤, 손잡이 꽉 잡고 가슴 바깥쪽의 힘으로 모아주기",
+            "늘릴때는 사이드 하듯이 길게 늘리고 배에 힘주면서 진행"
+          ],
+          "sets": [
+            {
+              "w": 30,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 40,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 40,
+              "u": "kg",
+              "r": 15
+            }
+          ],
+          "declared": 3,
+          "rawSets": "30kg x15, 40kg x 15, 15 3set",
+          "video": "https://drive.google.com/file/d/1acMJphfyN25srRmR_NpqOKayVFq54GBO/view?usp=drivesdk"
+        }
+      ],
+      "createdAt": 1785746271311
+    },
+    {
+      "id": "smsczmorreabp7",
+      "date": "2026-07-18",
+      "memo": "",
+      "exercises": [
+        {
+          "name": "아웃타이",
+          "part": "leg",
+          "cues": [
+            "손잡이 잡고 강하게 옆으로 벌려주기"
+          ],
+          "sets": [
+            {
+              "w": 25,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 35,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 50,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 50,
+              "u": "kg",
+              "r": 15
+            }
+          ],
+          "declared": 4,
+          "rawSets": "25kg x 15, 35kg x 15, 50kg x 15, 15 4set",
+          "video": "https://drive.google.com/file/d/1VrCq1iINuD7EmzXqXdK6bX-t8nIHpdEN/view?usp=drivesdk"
+        },
+        {
+          "name": "레그컬",
+          "part": "leg",
+          "cues": [
+            "손잡이도 밀고, 허벅지도 위로 밀고 강하게 접어주기"
+          ],
+          "sets": [
+            {
+              "w": 40,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 50,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 60,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 70,
+              "u": "kg",
+              "r": 15
+            }
+          ],
+          "declared": 4,
+          "rawSets": "40kg x 15, 50kg x 15, 60kg x 15, 70kg x 15 4set",
+          "video": "https://drive.google.com/file/d/1ubSiqwlI-sXmX9yGVyJclDLPBOYr_aRh/view?usp=drivesdk"
+        },
+        {
+          "name": "v 스쿼트 (뒷다리 타겟)",
+          "part": "leg",
+          "cues": [
+            "손잡이 잘 잡아주고, 발 뒷꿈치 꾹 눌러주면서 앉아주기",
+            "발판은 구멍 3칸이 보이게",
+            "한 호흡에 하나씩 하기"
+          ],
+          "sets": [
+            {
+              "w": 40,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 60,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 80,
+              "u": "kg",
+              "r": 12
+            },
+            {
+              "w": 80,
+              "u": "kg",
+              "r": 12
+            }
+          ],
+          "declared": 4,
+          "rawSets": "40kg x 15, 60kg x 15, 80kg x 12, 12 4set",
+          "video": "https://drive.google.com/file/d/1tq3HPM1RTmBQxfHGgvXw-2Zf1qERXOk3/view?usp=drivesdk"
+        },
+        {
+          "name": "레그 프레스",
+          "part": "leg",
+          "cues": [
+            "등받이는 숫자 3으로 조절",
+            "발 뒷꿈치 잘 누르면서 무릎 벌리고 구간 반복하면서 쭉쭉 밀어주기"
+          ],
+          "sets": [
+            {
+              "w": 80,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 80,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "raw": "15(마지막 세트는 드랍이에요)"
+            }
+          ],
+          "declared": null,
+          "rawSets": "80kg x 15, 15, 15(마지막 세트는 드랍이에요)",
+          "video": "https://drive.google.com/file/d/1ijw-RqWhG5CDyV-1hjdGb-1TBWokRAJ0/view?usp=drivesdk"
+        }
+      ],
+      "createdAt": 1785746954727
+    },
+    {
+      "id": "smsczrzw4ytb57",
+      "date": "2026-07-29",
+      "memo": "",
+      "exercises": [
+        {
+          "name": "케이블 업라이트 로우",
+          "part": "shoulder",
+          "cues": [
+            "케이블 밑으로 옮긴 뒤, 로프 잡고 숙였다가 차렷자세 만들면서 로프 가져오기",
+            "345 손가락 꽉 잡고 팔꿈치 옆으로 보내면서 차렷 만들면 됩니다!"
+          ],
+          "sets": [
+            {
+              "w": 15,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 20,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 20,
+              "u": "kg",
+              "r": 15
+            }
+          ],
+          "declared": 3,
+          "rawSets": "15kg x 15, 20kg x 15, 15 3set",
+          "video": "https://drive.google.com/file/d/1phvkMWK1x1BmzdFRCWISo4hqeJWSp_DD/view?usp=drivesdk"
+        },
+        {
+          "name": "덤벨 숄더 프레스",
+          "part": "shoulder",
+          "cues": [
+            "등받이는 구멍 3개 째에 넣고 의자 세우기",
+            "덤벨 꽉 잡고, 밑에서 신장반사 하면서 정수리 위로 쭉 밀어주기"
+          ],
+          "sets": [
+            {
+              "w": 6,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 8,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 12,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 16,
+              "u": "kg",
+              "r": 15
+            }
+          ],
+          "declared": 4,
+          "rawSets": "6kg x 15, 8kg x 15, 12kg x 15, 16kg x 15 4set",
+          "video": "https://drive.google.com/file/d/1cjsYb_aAeVxptjlgvHRN1LeoUN2zhzHb/view?usp=drivesdk"
+        },
+        {
+          "name": "머신 숄더 프레스",
+          "part": "shoulder",
+          "cues": [
+            "꽉 잡고 팔꿈치 수직으로 움직이게 만들기"
+          ],
+          "sets": [
+            {
+              "w": 40,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 50,
+              "u": "kg",
+              "r": 12
+            },
+            {
+              "w": 50,
+              "u": "kg",
+              "r": 12
+            },
+            {
+              "w": 50,
+              "u": "kg",
+              "r": 12
+            }
+          ],
+          "declared": 4,
+          "rawSets": "40 x 15, 50 x 12, 12, 12 4set",
+          "video": "https://drive.google.com/file/d/1LdF4j0GKTFAZwXtu7Ob6ycqKQimLP4XU/view?usp=drivesdk"
+        },
+        {
+          "name": "사이드 머신",
+          "part": "etc",
+          "cues": [
+            "사이드 높이는 숫자 7",
+            "손잡이 꽉 잡고 팔꿈치의 힘으로 옆으로 멀리 던져주기",
+            "팔은 버티면서 내려오기"
+          ],
+          "sets": [
+            {
+              "w": 10,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 10,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 10,
+              "u": "kg",
+              "r": 15
+            }
+          ],
+          "declared": 3,
+          "rawSets": "10kg x 15, 15, 15, 3set",
+          "video": "https://drive.google.com/file/d/1tMRUaHI1znCEG2I6G-lmgmESaa4_Ue25/view?usp=drivesdk"
+        }
+      ],
+      "createdAt": 1785747202420
+    },
+    {
+      "id": "smsczwlzxlyv1k",
+      "date": "2026-08-02",
+      "memo": "",
+      "exercises": [
+        {
+          "name": "루마니안 데드리프트",
+          "part": "back",
+          "cues": [
+            "호흡 마시고 꽉 잡고 앞꿈치에 체중 실어준 뒤, 인사하듯이 숙여주세요",
+            "일어날때는 발바닥, 배, 주먹에 힘 주면서 일어난 다음 날개뼈 뒤로 모아주기"
+          ],
+          "sets": [
+            {
+              "w": 10,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 20,
+              "u": "kg",
+              "r": 10
+            },
+            {
+              "w": 30,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 40,
+              "u": "kg",
+              "r": 5
+            },
+            {
+              "w": 40,
+              "u": "kg",
+              "r": 6
+            }
+          ],
+          "declared": 5,
+          "rawSets": "10kg x 15, 20kg x 10, 30kg x 15, 40kg x 5, 6 5set",
+          "video": "https://drive.google.com/file/d/1LHrgSRzv92nMeLVJTT3UtvyK8SsLa_xU/view?usp=drivesdk"
+        },
+        {
+          "name": "바벨 로우",
+          "part": "back",
+          "cues": [
+            "위의 자세처럼 똑같이 숙여준 뒤, 가슴을 너무 뒤로 꺾지말고 팔을 길게 늘렸다가 낡뼈를 강하게 접어준다는 느낌으로 당겨주세요",
+            "발 잘눌러주고, 배에 힘 무조건 주고 있기!"
+          ],
+          "sets": [
+            {
+              "w": 5,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 5,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 5,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 5,
+              "u": "kg",
+              "r": 15
+            }
+          ],
+          "declared": 4,
+          "rawSets": "5kg x 15, 15, 15, 15 4set",
+          "video": "https://drive.google.com/file/d/1yMHzrgcxRGHyCVLPM05B2BJFUr7BVA8m/view?usp=drivesdk"
+        },
+        {
+          "name": "랫풀다운",
+          "part": "back",
+          "cues": [
+            "일자그립으로 교체 후, 팔꿈치 살짝 앞으로 보내기",
+            "배에 힘주면서 당기면서 살짝만 누워주고, 늘릴때는 위로 팔 길게 늘려주기 반복"
+          ],
+          "sets": [
+            {
+              "w": 30,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 40,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 50,
+              "u": "kg",
+              "r": 15
+            },
+            {
+              "w": 50,
+              "u": "kg",
+              "r": 15
+            }
+          ],
+          "declared": 4,
+          "rawSets": "30 x 15, 40 x 15, 50 x 15, 15 4set",
+          "video": "https://drive.google.com/file/d/1F_uemDuXEM_zvTMpIzePWm7vJ3jXRkZ2/view?usp=drivesdk"
+        }
+      ],
+      "createdAt": 1785747417693
+    }
+  ],
+  "parts": {
+    "이너타이": "leg",
+    "아웃타이": "leg",
+    "익스텐션": "leg",
+    "이두머신": "shoulder",
+    "머리위로플라이": "shoulder",
+    "케이블크로스오버": "shoulder",
+    "루마니안데드리프트": "back"
+  },
+  "stars": {},
+  "notes": [],
+  "sparts": {}
+}
