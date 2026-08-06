@@ -360,7 +360,11 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
     <label class="fl">날짜</label>
     <input type="date" class="inp" id="aDate">
 
-    <label class="fl">카톡 내용 붙여넣기</label>
+    <button class="btn full" id="loadRoutineBtn" style="margin-top:10px">🗂 예전 세트에서 그대로 불러오기</button>
+    <div class="hint">트레이너 없이 혼자 운동하는 날엔 이걸로 지난 세트를 통째로 불러와 오늘 기준으로 고쳐서 저장하세요.</div>
+    <div id="routinePicker" class="hidden" style="margin-top:10px"></div>
+
+    <label class="fl" style="margin-top:18px">카톡 내용 붙여넣기</label>
     <textarea class="inp" id="aRaw" rows="9" placeholder="트레이너가 보낸 메시지를 그대로 붙여넣으세요.
 
 오늘의 운동
@@ -464,7 +468,7 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
    스낵PT — 부위별 PT 팁 아카이브
    ========================================================= */
 const KEY = "snackpt.v1", THEME_KEY = "snackpt.theme";
-const APP_VERSION = "2.0";           // 배포할 때마다 올린다
+const APP_VERSION = "2.1";           // 배포할 때마다 올린다
 const APP_BUILT   = "2026-08-06";
 
 /* ---------- 운동 부위 ---------- */
@@ -1593,6 +1597,62 @@ function delCue(i,j){ draft[i].cues.splice(j,1); renderParsed(); }
 function delSet(i,j){ draft[i].sets.splice(j,1); renderParsed(); }
 function delEx(i){ draft.splice(i,1); renderParsed(); }
 
+/* 트레이너 카톡이 없는 개인 운동일 — 예전에 저장해둔 세트를 통째로 불러와 오늘 기준으로 고쳐 쓴다 */
+let rpPart = "all";
+$("#loadRoutineBtn").onclick = ()=>{
+  const el = $("#routinePicker");
+  el.classList.toggle("hidden");
+  if(!el.classList.contains("hidden")) renderRoutinePicker();
+};
+function setRpPart(pk){ rpPart = pk; renderRoutinePicker(); }
+function renderRoutinePicker(){
+  const idx = routineIndex();
+  const counts = {};
+  DB.sessions.forEach(s=>{ const p = idx[s.id].part; counts[p]=(counts[p]||0)+1; });
+  const ALWAYS = ["leg","chest","back","shoulder"];
+
+  let chips = `<button class="chip ${rpPart==="all"?"on":""}" style="--pc:var(--acc)" onclick="setRpPart('all')">
+    전체 <span class="cnt">${DB.sessions.length}</span></button>`;
+  PARTS.forEach(p=>{
+    const c = counts[p.k]||0;
+    if(!c && !ALWAYS.includes(p.k)) return;
+    chips += `<button class="chip ${rpPart===p.k?"on":""}" style="--pc:${p.c}" onclick="setRpPart('${p.k}')">
+      <span class="pdot"></span>${p.n} <span class="cnt">${c}</span></button>`;
+  });
+
+  let list = [...DB.sessions].sort((a,b)=> b.date.localeCompare(a.date) || (b.createdAt||0)-(a.createdAt||0));
+  if(rpPart!=="all") list = list.filter(s=>idx[s.id].part===rpPart);
+
+  const body = list.length
+    ? list.slice(0,20).map(s=>{
+        const {part,nth} = idx[s.id];
+        const pc = partColor(part);
+        const f = fmtDate(s.date);
+        const names = s.exercises.map(e=>e.name).join(" · ");
+        return `<div class="card" style="--pc:${pc}" onclick="loadRoutine('${s.id}')">
+          <div class="accentbar" style="background:${pc}"></div>
+          <div class="chead">
+            <span class="nth">${partName(part)} 운동 #${nth}</span>
+            <span class="cdate" style="font-size:12.5px;font-weight:700;color:var(--tx3)">${f.m}/${f.d}</span>
+          </div>
+          <div class="memoline" style="margin:0 0 0 5px">${esc(names)}</div>
+        </div>`;
+      }).join("")
+    : `<div class="empty" style="padding:20px 12px"><p>불러올 세트가 없어요.</p></div>`;
+
+  $("#routinePicker").innerHTML = `<div class="chiprow" style="padding:2px 0 10px;margin:0">${chips}</div>${body}`;
+}
+function loadRoutine(sid){
+  const s = DB.sessions.find(x=>x.id===sid);
+  if(!s) return;
+  const clone = JSON.parse(JSON.stringify(s.exercises));
+  draft = (draft && draft.length) ? draft.concat(clone) : clone;
+  $("#routinePicker").classList.add("hidden");
+  renderParsed();
+  toast(`${clone.length}개 운동을 불러왔어요 — 오늘 기준으로 고쳐서 저장하세요`);
+  setTimeout(()=>$("#parsed").scrollIntoView({behavior:"smooth",block:"start"}), 60);
+}
+
 $("#parseBtn").onclick = ()=>{
   const raw = $("#aRaw").value;
   if(!raw.trim()) return toast("붙여넣은 내용이 없어요");
@@ -1607,7 +1667,7 @@ $("#parseBtn").onclick = ()=>{
   toast(`운동 ${r.exercises.length}개 · ${ps}`);
   setTimeout(()=>$("#parsed").scrollIntoView({behavior:"smooth",block:"start"}), 60);
 };
-$("#clearRaw").onclick = ()=>{ $("#aRaw").value=""; $("#aMemo").value=""; draft=null; editingId=null; renderParsed(); };
+$("#clearRaw").onclick = ()=>{ $("#aRaw").value=""; $("#aMemo").value=""; draft=null; editingId=null; renderParsed(); $("#routinePicker").classList.add("hidden"); };
 $("#addExBtn").onclick = ()=>{
   if(!draft) draft=[];
   draft.push({name:"", part:"etc", cues:[], sets:[], declared:null, rawSets:"", video:""});
@@ -1632,6 +1692,7 @@ $("#saveBtn").onclick = ()=>{
   }
   save();
   draft=null; $("#aRaw").value=""; $("#aMemo").value=""; renderParsed();
+  $("#routinePicker").classList.add("hidden");
   renderLog(); renderTips(); go(returnView);
   toast("🍪 저장했습니다");
   window.scrollTo(0,0);
@@ -1725,6 +1786,7 @@ function openAdd(dateStr){
 $("#addBtn").onclick = ()=> openAdd();
 $("#addBackBtn").onclick = ()=>{
   draft=null; editingId=null; $("#aRaw").value=""; $("#aMemo").value=""; renderParsed();
+  $("#routinePicker").classList.add("hidden");
   go(returnView);
 };
 
