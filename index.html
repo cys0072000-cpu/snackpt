@@ -91,12 +91,30 @@ a{color:var(--acc);text-decoration:none}
 .search input::placeholder{color:var(--tx3)}
 
 .stats{display:flex;gap:8px;margin:2px 0 14px}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px;margin:0 0 14px}
 .stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:var(--r2);padding:9px 10px;min-width:0}
 .stat b{display:block;font-size:19px;font-weight:800;letter-spacing:-.4px;line-height:1.2}
 .stat span{font-size:11px;color:var(--tx3);white-space:nowrap}
 
 .seclabel{font-size:12px;font-weight:700;color:var(--tx3);letter-spacing:.4px;margin:18px 2px 8px}
 .seclabel:first-child{margin-top:2px}
+
+.calhead{display:flex;align-items:center;gap:4px;margin:2px 0 12px}
+.calttl{flex:1;text-align:center;font-size:15.5px;font-weight:800;letter-spacing:-.3px}
+.callegend{display:flex;flex-wrap:wrap;gap:9px 12px;margin:0 2px 14px}
+.legitem{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx3);font-weight:600}
+.legitem .ld{width:8px;height:8px;border-radius:50%;background:var(--pc,var(--acc));flex:none}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.caldow{text-align:center;font-size:11px;font-weight:700;color:var(--tx3);padding-bottom:5px}
+.calcell{position:relative;aspect-ratio:1/1;border-radius:12px;background:var(--card);
+  border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
+.calcell.day{cursor:pointer}
+.calcell.day:active{transform:scale(.92)}
+.calcell.pad{background:none;border-color:transparent}
+.calcell .dn{font-size:12.5px;font-weight:700;color:var(--tx2)}
+.calcell.today{box-shadow:0 0 0 2px var(--acc) inset}
+.calcell .meal{position:absolute;bottom:3px;right:4px;font-size:8px;line-height:1}
+.calcell .nsess{position:absolute;top:2px;right:4px;font-size:8px;font-weight:800;color:var(--tx3)}
 
 /* exercise tip card */
 .excard{
@@ -167,6 +185,9 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
 .hint{font-size:11.5px;color:var(--tx3);margin-top:6px;line-height:1.6}
 
 /* parse preview */
+.addhead{display:flex;align-items:center;gap:10px;margin:2px 0 14px}
+.addhead .ttl{font-size:16px;font-weight:800;letter-spacing:-.3px}
+
 .pcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px;margin-bottom:9px}
 .phead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .phead input{flex:1;background:transparent;border:0;border-bottom:1px dashed var(--line2);
@@ -300,7 +321,7 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
       <span class="em">🍪</span>
       <h1>스낵PT</h1>
       <span class="tagline">내 손안의 PT 선생님</span>
-      <div class="sub"><button class="iconbtn" id="themeBtn">◐</button></div>
+      <div class="sub"><button class="iconbtn" id="addBtn" title="추가">➕</button></div>
     </div>
   </div>
 
@@ -320,16 +341,22 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
 
   <!-- ============ 기록 ============ -->
   <div class="view hidden" id="v-log">
-    <div class="stats" id="stats"></div>
-    <div class="search">
-      <span>🔍</span>
-      <input id="q" placeholder="운동 이름·메모로 찾기" autocomplete="off">
+    <div class="calhead">
+      <button class="iconbtn" id="calPrev" title="이전 달">‹</button>
+      <span class="calttl" id="calTtl"></span>
+      <button class="iconbtn" id="calNext" title="다음 달">›</button>
+      <button class="btn sm" id="calToday" style="margin-left:6px">오늘</button>
     </div>
-    <div id="logList"></div>
+    <div class="callegend" id="calLegend"></div>
+    <div class="calgrid" id="calGrid"></div>
   </div>
 
   <!-- ============ 추가 ============ -->
   <div class="view hidden" id="v-add">
+    <div class="addhead">
+      <button class="iconbtn" id="addBackBtn" title="닫기">✕</button>
+      <span class="ttl">운동 기록 추가</span>
+    </div>
     <label class="fl">날짜</label>
     <input type="date" class="inp" id="aDate">
 
@@ -357,8 +384,18 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
     </div>
   </div>
 
+  <!-- ============ 월간정리 ============ -->
+  <div class="view hidden" id="v-sum">
+    <div id="sumBody"></div>
+  </div>
+
   <!-- ============ 설정 ============ -->
   <div class="view hidden" id="v-set">
+    <div class="setblk">
+      <h4>화면 테마</h4>
+      <p>밝은 화면과 어두운 화면 중 골라 쓸 수 있어요.</p>
+      <button class="btn full" id="themeBtn">◐ 테마 전환</button>
+    </div>
     <div class="setblk">
       <h4>백업 내보내기</h4>
       <p>모든 팁과 기록을 JSON 파일 하나로 저장합니다. 폰↔PC 옮기거나 브라우저 데이터가 날아갈 때 대비용이에요.</p>
@@ -414,7 +451,7 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
 <div class="tabbar">
   <button class="tab on" data-v="tips"><span class="ic">🎓</span>PT 팁</button>
   <button class="tab" data-v="log"><span class="ic">📒</span>기록</button>
-  <button class="tab" data-v="add"><span class="ic">➕</span>추가</button>
+  <button class="tab" data-v="sum"><span class="ic">📊</span>월간정리</button>
   <button class="tab" data-v="set"><span class="ic">⚙️</span>설정</button>
 </div>
 
@@ -427,8 +464,8 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
    스낵PT — 부위별 PT 팁 아카이브
    ========================================================= */
 const KEY = "snackpt.v1", THEME_KEY = "snackpt.theme";
-const APP_VERSION = "1.9";           // 배포할 때마다 올린다
-const APP_BUILT   = "2026-08-05";
+const APP_VERSION = "2.0";           // 배포할 때마다 올린다
+const APP_BUILT   = "2026-08-06";
 
 /* ---------- 운동 부위 ---------- */
 const PARTS = [
@@ -480,6 +517,7 @@ function migrate(db){
   db.sparts = db.sparts || {};  // 세션 id → 사용자가 지정한 세트 부위
   db.stars  = db.stars  || {};  // 팁 키 → true
   db.notes  = db.notes  || [];  // 직접 추가한 팁
+  db.meals  = db.meals  || {};  // 날짜 → 식단 메모(자유 텍스트)
   db.sessions.forEach(s=>{
     s.exercises = s.exercises || [];
     s.exercises.forEach(e=>{
@@ -824,13 +862,9 @@ let curMode = "set";           // 기본은 세트(붙여넣은 메시지 단위
 /* 목록은 한 번에 다 그리지 않는다.
    몇 년 쌓여도 DOM 노드 수가 일정하게 유지되도록 끊어서 그린다. */
 const PAGE = 60;
-let tipsLimit = PAGE, logLimit = PAGE;
-function moreBtn(rest, which){
-  return `<button class="btn full ghost" style="margin-top:4px" onclick="showMore('${which}')">＋ ${rest}개 더 보기</button>`;
-}
-function showMore(which){
-  if(which==="tips"){ tipsLimit += PAGE; renderTips(); }
-  else { logLimit += PAGE; renderLog(); }
+let tipsLimit = PAGE;
+function moreBtn(rest){
+  return `<button class="btn full ghost" style="margin-top:4px" onclick="tipsLimit+=PAGE;renderTips()">＋ ${rest}개 더 보기</button>`;
 }
 
 function renderChips(){
@@ -877,8 +911,8 @@ function renderTips(){
   if(!DB.sessions.length && !DB.notes.length){
     host.innerHTML = `<div class="empty"><span class="bigem">🎓</span>
       <p><b>아직 배운 게 없어요.</b></p>
-      <p>＋추가 탭에서 트레이너가 보낸 카톡을 붙여넣으면<br>부위별로 팁이 쌓이기 시작합니다.</p>
-      <button class="btn primary" style="margin-top:14px" onclick="go('add')">첫 운동 기록하기</button></div>`;
+      <p>오른쪽 위 ➕ 버튼에서 트레이너가 보낸 카톡을 붙여넣으면<br>부위별로 팁이 쌓이기 시작합니다.</p>
+      <button class="btn primary" style="margin-top:14px" onclick="openAdd()">첫 운동 기록하기</button></div>`;
     return;
   }
   if(curMode==="set") return renderRoutines(q);
@@ -1152,81 +1186,109 @@ function setRoutinePart(sid, pk){
 }
 
 /* =========================================================
-   기록 뷰
+   기록 뷰 — 월간 달력
+   달력 칸 하나 = 하루. 그날 운동한 부위 색으로 칠하고, 식단 메모가 있으면 🍽 표시.
+   루틴을 한눈에 확인하는 용도라 목록·검색 대신 달력만 보여준다.
    ========================================================= */
-function renderStats(){
-  const ss = DB.sessions;
-  const ym = todayStr().slice(0,7);
-  const thisMonth = ss.filter(s=>s.date.slice(0,7)===ym).length;
-  let tips = 0;
-  ss.forEach(s=>s.exercises.forEach(e=>{ tips += e.cues.length; }));
-  tips += DB.notes.length;
-  const latest = ss.length ? ss.reduce((a,b)=> a.date>=b.date?a:b) : null;
-  const last = latest ? (()=>{
-    const diff = Math.round((new Date(todayStr()+"T00:00:00") - new Date(latest.date+"T00:00:00"))/86400000);
-    return diff===0?"오늘":diff===1?"어제":diff+"일 전";
-  })() : "—";
-  $("#stats").innerHTML = `
-    <div class="stat"><b>${ss.length}</b><span>총 세션</span></div>
-    <div class="stat"><b>${thisMonth}</b><span>이번 달</span></div>
-    <div class="stat"><b>${tips}</b><span>모은 팁</span></div>
-    <div class="stat"><b style="font-size:16px;padding-top:2px">${last}</b><span>마지막 운동</span></div>`;
+let calYM = todayStr().slice(0,7);   // "YYYY-MM"
+function shiftMonth(delta){
+  const [y,m] = calYM.split("-").map(Number);
+  const d = new Date(y, m-1+delta, 1);
+  calYM = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+  renderLog();
+}
+function sessionsByDate(){
+  const map = {};
+  DB.sessions.forEach(s=>{ (map[s.date] = map[s.date]||[]).push(s); });
+  return map;
 }
 function renderLog(){
-  renderStats();
-  const q = $("#q").value.trim().toLowerCase();
-  let list = [...DB.sessions].sort((a,b)=> b.date.localeCompare(a.date) || (b.createdAt||0)-(a.createdAt||0));
-  if(q) list = list.filter(s =>
-    s.date.includes(q) || (s.memo||"").toLowerCase().includes(q) ||
-    s.exercises.some(e=>e.name.toLowerCase().includes(q) || e.cues.join(" ").toLowerCase().includes(q)));
+  const [y,m] = calYM.split("-").map(Number);
+  $("#calTtl").textContent = `${y}년 ${m}월`;
+  $("#calToday").classList.toggle("hidden", calYM===todayStr().slice(0,7));
 
-  const host = $("#logList");
-  if(!list.length){
-    host.innerHTML = q
-      ? `<div class="empty"><span class="bigem">🔍</span><p>"${esc(q)}" 에 맞는 기록이 없어요.</p></div>`
-      : `<div class="empty"><span class="bigem">🍪</span><p><b>아직 기록이 없어요.</b></p>
-         <p>＋추가 탭에서 카톡 내용을 붙여넣어 보세요.</p>
-         <button class="btn primary" style="margin-top:14px" onclick="go('add')">첫 운동 기록하기</button></div>`;
-    return;
-  }
-  const idx = routineIndex();
-  const totalLog = list.length;
-  const monthTotal = {};
-  list.forEach(s=>{ const k = s.date.slice(0,7); monthTotal[k] = (monthTotal[k]||0)+1; });
-  list = list.slice(0, logLimit);
-  let html = "", lastYM = "";
-  list.forEach(s=>{
-    const ym = s.date.slice(0,7);
-    if(ym!==lastYM){
-      lastYM = ym;
-      const [y,m] = ym.split("-");
-      html += `<div class="seclabel">${y}년 ${+m}월 · ${monthTotal[ym]}회</div>`;
+  const byDate = sessionsByDate();
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const startDow = new Date(y, m-1, 1).getDay();
+  const today = todayStr();
+
+  const usedParts = new Set();
+  let cells = DOW.map(d=>`<div class="caldow">${d}</div>`).join("");
+  for(let i=0;i<startDow;i++) cells += `<div class="calcell pad"></div>`;
+  for(let d=1; d<=daysInMonth; d++){
+    const dateStr = `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const sess = byDate[dateStr];
+    const meal = DB.meals[dateStr];
+    let style = "", cls = "calcell day";
+    if(sess && sess.length){
+      const pk = sessionPart(sess[0]);
+      usedParts.add(pk);
+      const pc = partColor(pk);
+      style = `--pc:${pc};background:color-mix(in srgb,${pc} 22%,var(--card));border-color:color-mix(in srgb,${pc} 46%,var(--line))`;
     }
-    const f = fmtDate(s.date);
-    const r = idx[s.id];
-    const ptags = `<span class="nth" style="--pc:${partColor(r.part)}">${partName(r.part)} 운동 #${r.nth}</span>`;
-    const rows = s.exercises.slice(0,5).map((e,i)=>`
-      <div class="exline">
-        <span class="ix" style="background:color-mix(in srgb,${partColor(partOf(e))} 16%,transparent);color:${partColor(partOf(e))}">${i+1}</span>
-        <span class="nm">${esc(e.name)}</span>
-        ${e.video?'<span class="vd">🎬</span>':""}
-        <span class="sm">${esc(summarize(e))}</span>
-      </div>`).join("");
-    const more = s.exercises.length>5
-      ? `<div class="exline"><span class="ix" style="background:none;color:var(--tx3)">＋</span><span class="nm" style="color:var(--tx3);font-weight:500">외 ${s.exercises.length-5}개</span></div>` : "";
-    html += `<div class="card" onclick="openSession('${s.id}')">
-      <div class="accentbar" style="background:${partColor(r.part)}"></div>
-      <div class="chead">
-        <span class="cdate">${f.m}월 ${f.d}일</span>
-        <span class="cdow">${f.dow}</span>
-        <span class="cnum">${ptags}</span>
-      </div>
-      ${rows}${more}
-      ${s.memo?`<div class="memoline">${esc(s.memo)}</div>`:""}
-    </div>`;
-  });
-  if(totalLog > logLimit) html += moreBtn(totalLog - logLimit, "log");
-  host.innerHTML = html;
+    if(dateStr===today) cls += " today";
+    cells += `<div class="${cls}" style="${style}" onclick="openDay('${dateStr}')">
+        <span class="dn">${d}</span>
+        ${sess && sess.length>1 ? `<span class="nsess">+${sess.length-1}</span>`:""}
+        ${meal ? `<span class="meal">🍽</span>`:""}
+      </div>`;
+  }
+  $("#calGrid").innerHTML = cells;
+
+  const ALWAYS = ["leg","chest","back","shoulder"];
+  $("#calLegend").innerHTML = PARTS
+    .filter(p=>usedParts.has(p.k)||ALWAYS.includes(p.k))
+    .map(p=>`<span class="legitem"><span class="ld" style="--pc:${p.c}"></span>${p.n}</span>`)
+    .join("") + `<span class="legitem"><span>🍽</span>식단 기록</span>`;
+}
+$("#calPrev").onclick = ()=> shiftMonth(-1);
+$("#calNext").onclick = ()=> shiftMonth(1);
+$("#calToday").onclick = ()=>{ calYM = todayStr().slice(0,7); renderLog(); };
+
+/* =========================================================
+   월간정리 — 이번 달 운동·식단을 숫자로 요약
+   ========================================================= */
+function renderSummary(){
+  const ym = todayStr().slice(0,7);
+  const [y,m] = ym.split("-").map(Number);
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const sess = DB.sessions.filter(s=>s.date.slice(0,7)===ym);
+
+  const counts = {};
+  sess.forEach(s=>{ const pk = sessionPart(s); counts[pk] = (counts[pk]||0)+1; });
+  const ALWAYS = ["leg","chest","back","shoulder"];
+  const partChips = PARTS
+    .filter(p=>counts[p.k]||ALWAYS.includes(p.k))
+    .map(p=>`<div class="stat"><b style="color:${p.c}">${counts[p.k]||0}</b><span>${p.n}</span></div>`)
+    .join("");
+
+  const latest = sess.length ? sess.reduce((a,b)=> a.date>=b.date?a:b) : null;
+  const lastTxt = latest ? `${+latest.date.slice(5,7)}월 ${+latest.date.slice(8,10)}일` : "—";
+
+  const mealDates = Object.keys(DB.meals).filter(d=>d.slice(0,7)===ym).sort().reverse();
+  const mealList = mealDates.length
+    ? mealDates.map(d=>{
+        const f = fmtDate(d);
+        return `<div class="exline"><span class="nm" style="flex:none">${f.m}/${f.d} ${f.dow}</span>
+          <span class="sm" style="white-space:normal;text-align:right;color:var(--tx2)">${esc(DB.meals[d])}</span></div>`;
+      }).join("")
+    : `<div class="empty" style="padding:20px 12px"><p>이번 달 식단 기록이 아직 없어요.</p></div>`;
+
+  $("#sumBody").innerHTML = `
+    <div class="seclabel" style="margin-top:2px">🏋️ ${y}년 ${m}월 운동</div>
+    <div class="stats">
+      <div class="stat"><b>${sess.length}</b><span>총 세션</span></div>
+      <div class="stat"><b style="font-size:15px;padding-top:2px">${lastTxt}</b><span>마지막 운동</span></div>
+    </div>
+    <div class="statgrid">${partChips}</div>
+
+    <div class="seclabel">🍽 ${y}년 ${m}월 식단</div>
+    <div class="stats">
+      <div class="stat"><b>${mealDates.length}</b><span>기록한 날</span></div>
+      <div class="stat"><b>${daysInMonth}</b><span>이번 달 일수</span></div>
+    </div>
+    ${mealList}
+  `;
 }
 
 function historyBefore(name, date){
@@ -1299,6 +1361,63 @@ function renderSessionSheet(id){
   </div>`;
   document.body.style.overflow = "hidden";
 }
+
+/* 달력에서 날짜를 탭하면 여는 시트 — 그날의 식단 메모(자유 텍스트)와 운동 세션(들)을 한 화면에서 보고 채운다 */
+function saveMeal(date){
+  const inp = $("#dayMealInp");
+  const text = inp ? inp.value.trim() : "";
+  if(text) DB.meals[date] = text; else delete DB.meals[date];
+  save(); renderLog();
+  toast(text ? "식단을 저장했어요" : "식단 메모를 지웠어요");
+}
+function addFromDay(date){
+  closeSheet();
+  openAdd(date);
+}
+function renderDaySheet(date){
+  const f = fmtDate(date);
+  const sess = DB.sessions.filter(s=>s.date===date).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+  const meal = DB.meals[date] || "";
+
+  const sessHtml = sess.length ? sess.map(s=>{
+    const pk = sessionPart(s);
+    const rows = s.exercises.slice(0,5).map((e,i)=>`
+      <div class="exline">
+        <span class="ix" style="background:color-mix(in srgb,${partColor(partOf(e))} 16%,transparent);color:${partColor(partOf(e))}">${i+1}</span>
+        <span class="nm">${esc(e.name)}</span>
+        ${e.video?'<span class="vd">🎬</span>':""}
+        <span class="sm">${esc(summarize(e))}</span>
+      </div>`).join("");
+    const more = s.exercises.length>5
+      ? `<div class="exline"><span class="ix" style="background:none;color:var(--tx3)">＋</span><span class="nm" style="color:var(--tx3);font-weight:500">외 ${s.exercises.length-5}개</span></div>` : "";
+    return `<div class="card" onclick="openSession('${s.id}')">
+      <div class="accentbar" style="background:${partColor(pk)}"></div>
+      <div class="chead">
+        <span class="cdate">${partName(pk)} 운동</span>
+        <span class="cnum">${s.exercises.length}개 · 자세히 보기 ›</span>
+      </div>
+      ${rows}${more}
+      ${s.memo?`<div class="memoline">${esc(s.memo)}</div>`:""}
+    </div>`;
+  }).join("") : `<div class="empty" style="padding:30px 12px"><span class="bigem">🍪</span><p>이 날은 아직 운동 기록이 없어요.</p></div>`;
+
+  $("#sheetHost").innerHTML = `<div class="sheet">
+    <div class="sheetbar">
+      ${navBtn()}
+      <span class="ttl">${f.y}. ${f.m}. ${f.d} (${f.dow})</span>
+    </div>
+    <div class="sheetbody">
+      <div class="seclabel" style="margin-top:2px">🍽 식단</div>
+      <textarea class="inp" id="dayMealInp" rows="3" placeholder="예) 아침-계란흰자, 점심-샐러드, 저녁-닭가슴살">${esc(meal)}</textarea>
+      <button class="btn sm full" style="margin-top:8px" onclick="saveMeal('${date}')">식단 저장</button>
+
+      <div class="seclabel">🏋️ 운동</div>
+      ${sessHtml}
+      <button class="btn primary full" style="margin-top:10px" onclick="addFromDay('${date}')">＋ 운동 기록하기</button>
+    </div>
+  </div>`;
+  document.body.style.overflow = "hidden";
+}
 /* =========================================================
    시트 내비게이션 — 뒤로가기 스택
    세트 → 종목 → 다른 세트… 로 파고들어도 한 단계씩 되돌아온다.
@@ -1314,6 +1433,7 @@ function renderTop(){
   if(v.t==="routine")  renderRoutineSheet(v.id);
   else if(v.t==="exercise") renderExerciseSheet(v.id);
   else if(v.t==="session")  renderSessionSheet(v.id);
+  else if(v.t==="day")      renderDaySheet(v.id);
 }
 function pushView(v){
   const top = navStack[navStack.length-1];
@@ -1334,6 +1454,7 @@ function navBtn(){
 function openRoutine(id){  pushView({t:"routine",  id}); }
 function openExercise(id){ pushView({t:"exercise", id}); }
 function openSession(id){  pushView({t:"session",  id}); }
+function openDay(date){    pushView({t:"day",      id:date}); }
 
 function clearSheet(){ $("#sheetHost").innerHTML=""; document.body.style.overflow=""; }
 /* ✕ 버튼 — 몇 단계를 팠든 한 번에 닫는다 */
@@ -1418,6 +1539,7 @@ function editSession(id){
   const s = DB.sessions.find(x=>x.id===id);
   if(!s) return;
   closeSheet(); editingId = id;
+  returnView = "log";
   $("#aDate").value = s.date; $("#aMemo").value = s.memo||""; $("#aRaw").value = "";
   draft = JSON.parse(JSON.stringify(s.exercises));
   go("add"); renderParsed();
@@ -1510,7 +1632,7 @@ $("#saveBtn").onclick = ()=>{
   }
   save();
   draft=null; $("#aRaw").value=""; $("#aMemo").value=""; renderParsed();
-  renderLog(); renderTips(); go("tips");
+  renderLog(); renderTips(); go(returnView);
   toast("🍪 저장했습니다");
   window.scrollTo(0,0);
 };
@@ -1547,6 +1669,7 @@ $("#impFile").onchange = ev=>{
       Object.assign(DB.parts,  inc.parts||{});
       Object.assign(DB.sparts, inc.sparts||{});
       Object.assign(DB.stars,  inc.stars||{});
+      Object.assign(DB.meals,  inc.meals||{});
       const noteIds = new Set(DB.notes.map(x=>x.id));
       (inc.notes||[]).forEach(x=>{ if(!noteIds.has(x.id)) DB.notes.push(x); });
       DB = migrate(DB); save();
@@ -1560,7 +1683,7 @@ $("#impFile").onchange = ev=>{
 $("#wipeBtn").onclick = ()=>{
   if(!confirm("모든 팁과 기록이 지워집니다. 백업은 받으셨나요?")) return;
   if(!confirm("정말 전부 삭제할까요?")) return;
-  DB = {version:2, sessions:[], parts:{}, sparts:{}, stars:{}, notes:[]}; save();
+  DB = {version:2, sessions:[], parts:{}, sparts:{}, stars:{}, notes:[], meals:{}}; save();
   renderLog(); renderTips(); renderDataInfo(); toast("전체 삭제했습니다");
 };
 function renderDataInfo(){
@@ -1582,11 +1705,28 @@ function go(v){
   $$(".tab").forEach(t=>t.classList.toggle("on", t.dataset.v===v));
   if(v==="tips") renderTips();
   if(v==="log") renderLog();
+  if(v==="sum") renderSummary();
   if(v==="set") renderDataInfo();
 }
 $$(".tab").forEach(t=> t.onclick = ()=>{ go(t.dataset.v); window.scrollTo({top:0,behavior:"smooth"}); });
-let qTimer;
-$("#q").oninput = ()=>{ logLimit = PAGE; clearTimeout(qTimer); qTimer = setTimeout(renderLog, 120); };
+
+/* 추가 화면은 탭이 아니라 헤더 ➕ 버튼·달력 날짜에서 진입 → 저장/닫기 후 원래 있던 화면으로 되돌아간다 */
+let returnView = "tips";
+function currentView(){
+  const on = $(".tab.on");
+  return on ? on.dataset.v : "tips";
+}
+function openAdd(dateStr){
+  returnView = currentView();
+  $("#aDate").value = dateStr || todayStr();
+  go("add");
+  window.scrollTo(0,0);
+}
+$("#addBtn").onclick = ()=> openAdd();
+$("#addBackBtn").onclick = ()=>{
+  draft=null; editingId=null; $("#aRaw").value=""; $("#aMemo").value=""; renderParsed();
+  go(returnView);
+};
 
 function applyTheme(t){
   document.documentElement.dataset.theme = t;

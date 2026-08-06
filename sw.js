@@ -10,7 +10,7 @@
  * 캐시 이름에 버전을 넣어서, 새 버전을 배포하면(APP_VERSION 변경) 자동으로
  * 새 캐시를 만들고 이전 캐시는 activate 시점에 정리한다.
  */
-const CACHE = "snackpt-v1.9";
+const CACHE = "snackpt-v2.0";
 
 const PRECACHE = [
   "./",
