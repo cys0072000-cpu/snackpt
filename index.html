@@ -381,7 +381,13 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
 
     <div id="parsed"></div>
     <div id="saveWrap" class="hidden" style="margin-top:14px">
-      <label class="fl">메모 (선택)</label>
+      <label class="fl">이 기록은</label>
+      <div class="seg" id="sourceSeg">
+        <button type="button" data-src="pt">🎓 PT 팁</button>
+        <button type="button" data-src="personal">🏋️ 개인 운동</button>
+      </div>
+      <div class="hint" style="margin-top:4px">개인 운동으로 저장하면 기록에만 남고 PT팁 탭에는 쌓이지 않아요.</div>
+      <label class="fl" style="margin-top:14px">메모 (선택)</label>
       <input class="inp" id="aMemo" placeholder="컨디션, 통증, 다음에 할 것 등">
       <button class="btn primary full" id="saveBtn" style="margin-top:14px">🍪 스낵PT에 저장</button>
       <button class="btn ghost full" id="addExBtn" style="margin-top:8px">＋ 운동 직접 추가</button>
@@ -698,10 +704,15 @@ function sessionPart(s){
   for(const k in counts) if(counts[k] > n){ n = counts[k]; best = k; }
   return best || "etc";
 }
-/* 부위별로 오래된 것부터 1, 2, 3… 번호를 매긴다 */
+/* PT 팁 탭은 트레이너에게 받은 세트만 다룬다 — 개인 운동으로 복사·기록한 세트는 제외.
+   📒기록 탭은 이 필터를 쓰지 않고 DB.sessions 전체를 그대로 보여준다. */
+function ptSessions(){
+  return DB.sessions.filter(s=>s.source!=="personal");
+}
+/* 부위별로 오래된 것부터 1, 2, 3… 번호를 매긴다 (PT 세트 기준) */
 function routineIndex(){
   const map = {}, byPart = {};
-  [...DB.sessions]
+  [...ptSessions()]
     .sort((a,b)=> a.date.localeCompare(b.date) || (a.createdAt||0)-(b.createdAt||0))
     .forEach(s=>{
       const p = sessionPart(s);
@@ -711,7 +722,7 @@ function routineIndex(){
   return map;
 }
 function routineCount(part){
-  return DB.sessions.filter(s=>sessionPart(s)===part).length;
+  return ptSessions().filter(s=>sessionPart(s)===part).length;
 }
 
 function embedHtml(url){
@@ -734,7 +745,7 @@ function playHere(btn, url){
    세트 화면과 종목 화면이 같은 걸 본다. curSid를 주면 그 줄을 "지금"으로 표시. */
 function historyRows(exName){
   const nn = normName(exName), rows = [];
-  DB.sessions.forEach(s=>s.exercises.forEach(e=>{
+  ptSessions().forEach(s=>s.exercises.forEach(e=>{
     if(normName(e.name)===nn) rows.push({date:s.date, sid:s.id, ex:e, m:maxW(e)});
   }));
   return rows.sort((a,b)=> a.date.localeCompare(b.date) || 0);
@@ -792,7 +803,7 @@ const tipKey = (exk, text) => exk + "|" + normTip(text);
 /* 종목 하나의 모든 이력 + 팁 */
 function buildExercise(exk){
   const rows = [];
-  DB.sessions.forEach(s=>{
+  ptSessions().forEach(s=>{
     s.exercises.forEach(e=>{
       if(normName(e.name) !== exk) return;
       rows.push({date:s.date, sid:s.id, ex:e});
@@ -848,7 +859,7 @@ function buildExercise(exk){
 }
 function allExerciseKeys(){
   const set = new Set();
-  DB.sessions.forEach(s=>s.exercises.forEach(e=>{ if(e.name && e.name.trim()) set.add(normName(e.name)); }));
+  ptSessions().forEach(s=>s.exercises.forEach(e=>{ if(e.name && e.name.trim()) set.add(normName(e.name)); }));
   DB.notes.forEach(n=>set.add(n.ex));
   return [...set];
 }
@@ -876,8 +887,9 @@ function renderChips(){
   const counts = {};
   let total;
   if(curMode === "set"){
-    DB.sessions.forEach(s=>{ const p = sessionPart(s); counts[p] = (counts[p]||0)+1; });
-    total = DB.sessions.length;
+    const pt = ptSessions();
+    pt.forEach(s=>{ const p = sessionPart(s); counts[p] = (counts[p]||0)+1; });
+    total = pt.length;
   } else {
     const lib = library();
     lib.forEach(o=>{ counts[o.part] = (counts[o.part]||0)+1; });
@@ -964,7 +976,7 @@ function renderTips(){
 function renderRoutines(q){
   const idx = routineIndex();
   const host = $("#tipsBody");
-  let list = [...DB.sessions].sort((a,b)=>
+  let list = [...ptSessions()].sort((a,b)=>
     b.date.localeCompare(a.date) || (b.createdAt||0)-(a.createdAt||0));
   if(curPart!=="all") list = list.filter(s=>idx[s.id].part===curPart);
   if(q) list = list.filter(s=>
@@ -1546,6 +1558,7 @@ function editSession(id){
   returnView = "log";
   $("#aDate").value = s.date; $("#aMemo").value = s.memo||""; $("#aRaw").value = "";
   draft = JSON.parse(JSON.stringify(s.exercises));
+  draftSource = s.source || "pt";
   go("add"); renderParsed();
   toast("수정 모드 — 저장하면 덮어씁니다");
   window.scrollTo(0,0);
@@ -1554,7 +1567,7 @@ function editSession(id){
 /* =========================================================
    추가 뷰
    ========================================================= */
-let draft = null, editingId = null;
+let draft = null, editingId = null, draftSource = "pt";
 
 function renderParsed(){
   const host = $("#parsed");
@@ -1585,7 +1598,13 @@ function renderParsed(){
       </div>`;
     }).join("");
   $("#saveWrap").classList.remove("hidden");
+  renderSourceSeg();
 }
+/* PT팁으로 받은 세트인지, 혼자 한 개인 운동인지 — 붙여넣기/불러오기 시 자동 선택되고 직접 바꿀 수도 있다 */
+function renderSourceSeg(){
+  $$("#sourceSeg button").forEach(b=> b.classList.toggle("on", b.dataset.src===draftSource));
+}
+$$("#sourceSeg button").forEach(b=> b.onclick = ()=>{ draftSource = b.dataset.src; renderSourceSeg(); });
 function renderPartPick(i){
   const pk = draft[i].part;
   const host = $("#pp"+i);
@@ -1607,12 +1626,13 @@ $("#loadRoutineBtn").onclick = ()=>{
 function setRpPart(pk){ rpPart = pk; renderRoutinePicker(); }
 function renderRoutinePicker(){
   const idx = routineIndex();
+  const pt = ptSessions();
   const counts = {};
-  DB.sessions.forEach(s=>{ const p = idx[s.id].part; counts[p]=(counts[p]||0)+1; });
+  pt.forEach(s=>{ const p = idx[s.id].part; counts[p]=(counts[p]||0)+1; });
   const ALWAYS = ["leg","chest","back","shoulder"];
 
   let chips = `<button class="chip ${rpPart==="all"?"on":""}" style="--pc:var(--acc)" onclick="setRpPart('all')">
-    전체 <span class="cnt">${DB.sessions.length}</span></button>`;
+    전체 <span class="cnt">${pt.length}</span></button>`;
   PARTS.forEach(p=>{
     const c = counts[p.k]||0;
     if(!c && !ALWAYS.includes(p.k)) return;
@@ -1620,7 +1640,7 @@ function renderRoutinePicker(){
       <span class="pdot"></span>${p.n} <span class="cnt">${c}</span></button>`;
   });
 
-  let list = [...DB.sessions].sort((a,b)=> b.date.localeCompare(a.date) || (b.createdAt||0)-(a.createdAt||0));
+  let list = [...pt].sort((a,b)=> b.date.localeCompare(a.date) || (b.createdAt||0)-(a.createdAt||0));
   if(rpPart!=="all") list = list.filter(s=>idx[s.id].part===rpPart);
 
   const body = list.length
@@ -1645,8 +1665,10 @@ function renderRoutinePicker(){
 function loadRoutine(sid){
   const s = DB.sessions.find(x=>x.id===sid);
   if(!s) return;
+  const startingFresh = !draft || !draft.length;
   const clone = JSON.parse(JSON.stringify(s.exercises));
-  draft = (draft && draft.length) ? draft.concat(clone) : clone;
+  draft = startingFresh ? clone : draft.concat(clone);
+  if(startingFresh) draftSource = "personal";  // 트레이너 카톡 없이 옛 세트만 불러와 시작 = 개인 운동
   $("#routinePicker").classList.add("hidden");
   renderParsed();
   toast(`${clone.length}개 운동을 불러왔어요 — 오늘 기준으로 고쳐서 저장하세요`);
@@ -1659,6 +1681,7 @@ $("#parseBtn").onclick = ()=>{
   const r = parseMessage(raw);
   if(!r.exercises.length) return toast("운동을 못 찾았어요 — 번호(1. 2.)가 있는지 볼까요?");
   draft = r.exercises;
+  draftSource = "pt";  // 트레이너 카톡 붙여넣기 = PT 팁
   if(r.memo && !$("#aMemo").value) $("#aMemo").value = r.memo;
   const d = parseDateFrom(raw);
   if(d) $("#aDate").value = d;
@@ -1667,7 +1690,7 @@ $("#parseBtn").onclick = ()=>{
   toast(`운동 ${r.exercises.length}개 · ${ps}`);
   setTimeout(()=>$("#parsed").scrollIntoView({behavior:"smooth",block:"start"}), 60);
 };
-$("#clearRaw").onclick = ()=>{ $("#aRaw").value=""; $("#aMemo").value=""; draft=null; editingId=null; renderParsed(); $("#routinePicker").classList.add("hidden"); };
+$("#clearRaw").onclick = ()=>{ $("#aRaw").value=""; $("#aMemo").value=""; draft=null; editingId=null; draftSource="pt"; renderParsed(); $("#routinePicker").classList.add("hidden"); };
 $("#addExBtn").onclick = ()=>{
   if(!draft) draft=[];
   draft.push({name:"", part:"etc", cues:[], sets:[], declared:null, rawSets:"", video:""});
@@ -1685,13 +1708,13 @@ $("#saveBtn").onclick = ()=>{
 
   if(editingId){
     const s = DB.sessions.find(x=>x.id===editingId);
-    if(s){ s.date=date; s.memo=memo; s.exercises=clean; }
+    if(s){ s.date=date; s.memo=memo; s.exercises=clean; s.source=draftSource; }
     editingId = null;
   } else {
-    DB.sessions.push({id:uid(), date, memo, exercises:clean, createdAt:Date.now()});
+    DB.sessions.push({id:uid(), date, memo, exercises:clean, source:draftSource, createdAt:Date.now()});
   }
   save();
-  draft=null; $("#aRaw").value=""; $("#aMemo").value=""; renderParsed();
+  draft=null; draftSource="pt"; $("#aRaw").value=""; $("#aMemo").value=""; renderParsed();
   $("#routinePicker").classList.add("hidden");
   renderLog(); renderTips(); go(returnView);
   toast("🍪 저장했습니다");
@@ -1785,7 +1808,7 @@ function openAdd(dateStr){
 }
 $("#addBtn").onclick = ()=> openAdd();
 $("#addBackBtn").onclick = ()=>{
-  draft=null; editingId=null; $("#aRaw").value=""; $("#aMemo").value=""; renderParsed();
+  draft=null; editingId=null; draftSource="pt"; $("#aRaw").value=""; $("#aMemo").value=""; renderParsed();
   $("#routinePicker").classList.add("hidden");
   go(returnView);
 };
