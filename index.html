@@ -364,6 +364,10 @@ textarea.inp{resize:vertical;line-height:1.6;font-size:14px}
     <div class="hint">트레이너 없이 혼자 운동하는 날엔 이걸로 지난 세트를 통째로 불러와 오늘 기준으로 고쳐서 저장하세요.</div>
     <div id="routinePicker" class="hidden" style="margin-top:10px"></div>
 
+    <button class="btn full ghost" id="loadExerciseBtn" style="margin-top:8px">🎯 종목별로 골라서 불러오기</button>
+    <div class="hint">세트 전체가 아니라 종목 하나만 필요할 때. 지금까지 쌓인 팁 전부와 가장 최근 중량을 함께 불러온다.</div>
+    <div id="exercisePicker" class="hidden" style="margin-top:10px"></div>
+
     <label class="fl" style="margin-top:18px">카톡 내용 붙여넣기</label>
     <textarea class="inp" id="aRaw" rows="9" placeholder="트레이너가 보낸 메시지를 그대로 붙여넣으세요.
 
@@ -1621,6 +1625,7 @@ let rpPart = "all";
 $("#loadRoutineBtn").onclick = ()=>{
   const el = $("#routinePicker");
   el.classList.toggle("hidden");
+  $("#exercisePicker").classList.add("hidden");
   if(!el.classList.contains("hidden")) renderRoutinePicker();
 };
 function setRpPart(pk){ rpPart = pk; renderRoutinePicker(); }
@@ -1675,6 +1680,70 @@ function loadRoutine(sid){
   setTimeout(()=>$("#parsed").scrollIntoView({behavior:"smooth",block:"start"}), 60);
 }
 
+/* 세트 전체가 아니라 종목 하나만 필요할 때 — PT 팁에 쌓인 팁 전부 + 가장 최근 중량을 함께 불러온다 */
+let epPart = "all";
+$("#loadExerciseBtn").onclick = ()=>{
+  const el = $("#exercisePicker");
+  el.classList.toggle("hidden");
+  $("#routinePicker").classList.add("hidden");
+  if(!el.classList.contains("hidden")) renderExercisePicker();
+};
+function setEpPart(pk){ epPart = pk; renderExercisePicker(); }
+function renderExercisePicker(){
+  const lib = library();     // PT 세트에서만 뽑는다 — library()가 이미 ptSessions() 기준
+  const counts = {};
+  lib.forEach(o=>{ counts[o.part] = (counts[o.part]||0)+1; });
+  const ALWAYS = ["leg","chest","back","shoulder"];
+
+  let chips = `<button class="chip ${epPart==="all"?"on":""}" style="--pc:var(--acc)" onclick="setEpPart('all')">
+    전체 <span class="cnt">${lib.length}</span></button>`;
+  PARTS.forEach(p=>{
+    const c = counts[p.k]||0;
+    if(!c && !ALWAYS.includes(p.k)) return;
+    chips += `<button class="chip ${epPart===p.k?"on":""}" style="--pc:${p.c}" onclick="setEpPart('${p.k}')">
+      <span class="pdot"></span>${p.n} <span class="cnt">${c}</span></button>`;
+  });
+
+  let list = lib;
+  if(epPart!=="all") list = list.filter(o=>o.part===epPart);
+
+  const body = list.length
+    ? list.slice(0,30).map(o=>{
+        const pc = partColor(o.part);
+        const f = o.last ? fmtDate(o.last) : null;
+        const meta = [o.count?`${o.count}회`:"", o.best?`최고 ${o.best}kg`:""].filter(Boolean).join(" · ");
+        return `<div class="card" style="--pc:${pc}" onclick="loadExercise('${o.key}')">
+          <div class="accentbar" style="background:${pc}"></div>
+          <div class="chead">
+            <span class="nth">${esc(o.name)}</span>
+            ${f?`<span class="cdate" style="font-size:12.5px;font-weight:700;color:var(--tx3)">${f.m}/${f.d}</span>`:""}
+          </div>
+          <div class="memoline" style="margin:0 0 0 5px">${esc(meta)}</div>
+        </div>`;
+      }).join("")
+    : `<div class="empty" style="padding:20px 12px"><p>불러올 종목이 없어요.</p></div>`;
+
+  $("#exercisePicker").innerHTML = `<div class="chiprow" style="padding:2px 0 10px;margin:0">${chips}</div>${body}`;
+}
+function loadExercise(exk){
+  const o = buildExercise(exk);
+  if(!o || !o.rows.length) return;
+  const last = o.rows[o.rows.length-1].ex;
+  const startingFresh = !draft || !draft.length;
+  const clone = {
+    name: o.name, part: o.part,
+    cues: o.tips.map(t=>t.text),                          // 지금까지 쌓인 팁 전부(핵심 먼저)
+    sets: JSON.parse(JSON.stringify(last.sets)),           // 가장 최근 중량·횟수
+    declared: last.declared, rawSets: last.rawSets,
+    video: last.video || ""
+  };
+  draft = startingFresh ? [clone] : draft.concat([clone]);
+  if(startingFresh) draftSource = "personal";  // 트레이너 카톡 없이 종목만 불러와 시작 = 개인 운동
+  renderParsed();
+  toast(`${o.name} 불러왔어요 — 오늘 기준으로 고쳐서 저장하세요`);
+  setTimeout(()=>$("#parsed").scrollIntoView({behavior:"smooth",block:"start"}), 60);
+}
+
 $("#parseBtn").onclick = ()=>{
   const raw = $("#aRaw").value;
   if(!raw.trim()) return toast("붙여넣은 내용이 없어요");
@@ -1690,7 +1759,7 @@ $("#parseBtn").onclick = ()=>{
   toast(`운동 ${r.exercises.length}개 · ${ps}`);
   setTimeout(()=>$("#parsed").scrollIntoView({behavior:"smooth",block:"start"}), 60);
 };
-$("#clearRaw").onclick = ()=>{ $("#aRaw").value=""; $("#aMemo").value=""; draft=null; editingId=null; draftSource="pt"; renderParsed(); $("#routinePicker").classList.add("hidden"); };
+$("#clearRaw").onclick = ()=>{ $("#aRaw").value=""; $("#aMemo").value=""; draft=null; editingId=null; draftSource="pt"; renderParsed(); $("#routinePicker").classList.add("hidden"); $("#exercisePicker").classList.add("hidden"); };
 $("#addExBtn").onclick = ()=>{
   if(!draft) draft=[];
   draft.push({name:"", part:"etc", cues:[], sets:[], declared:null, rawSets:"", video:""});
@@ -1715,7 +1784,7 @@ $("#saveBtn").onclick = ()=>{
   }
   save();
   draft=null; draftSource="pt"; $("#aRaw").value=""; $("#aMemo").value=""; renderParsed();
-  $("#routinePicker").classList.add("hidden");
+  $("#routinePicker").classList.add("hidden"); $("#exercisePicker").classList.add("hidden");
   renderLog(); renderTips(); go(returnView);
   toast("🍪 저장했습니다");
   window.scrollTo(0,0);
@@ -1809,7 +1878,7 @@ function openAdd(dateStr){
 $("#addBtn").onclick = ()=> openAdd();
 $("#addBackBtn").onclick = ()=>{
   draft=null; editingId=null; draftSource="pt"; $("#aRaw").value=""; $("#aMemo").value=""; renderParsed();
-  $("#routinePicker").classList.add("hidden");
+  $("#routinePicker").classList.add("hidden"); $("#exercisePicker").classList.add("hidden");
   go(returnView);
 };
 
